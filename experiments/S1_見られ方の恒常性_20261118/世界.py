@@ -113,4 +113,5 @@ def 一生(種, 条件名, 生まれつきr=None, 寿命=寿命, 記録=False):
     if 記録:
         out['行動列'] = 行動列
         out['r列'] = r列
+        out['相手列'] = 相手
     return out
