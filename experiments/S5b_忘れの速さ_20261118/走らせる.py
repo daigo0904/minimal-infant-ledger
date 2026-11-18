@@ -3,20 +3,23 @@ sys.path.insert(0, '../S2d_Qの歩幅を直す_20261118')
 import 世界 as W
 W.感覚数 = 256; W.見た目雑音 = 0.3
 keep = []
+snap = {}
 class K(W.赤ちゃん):
-    def __init__(s, *a): super().__init__(*a); keep.append(s)
+    def __init__(s, *a): super().__init__(*a); keep.append(s); s.手数 = 0
+    def 受ける(s, *a, **k):
+        super().受ける(*a, **k); s.手数 += 1
+        if s.手数 == 8000: snap[id(s)] = s.つながり.w.copy()
 W.赤ちゃん = K
 段 = sys.argv[1]; 種 = range(3300, 3310) if 段 == '本' else range(3400, 3410)
-def link(s):
+def link(s, at8000=False):
     世 = np.random.default_rng([s, 0]); 世.permutation(4); face = 世.normal(0, 1, (9, 8)); rng = np.random.default_rng(5)
-    return float(np.mean([np.mean([c.つながり.予測(c.感覚(face[0] + rng.normal(0, W.見た目雑音, 8))) for _ in range(30)]) for c in keep]))
+    w = lambda c: snap[id(c)] if at8000 else c.つながり.w
+    return float(np.mean([np.mean([w(c) @ c.感覚(face[0] + rng.normal(0, W.見た目雑音, 8)) for _ in range(30)]) for c in keep]))
 rows = []
 for 腕, h, f in [('遅', '獲得型', 0.9999), ('速', '獲得型', 0.999), ('道具', '道具型', 0.9999)]:
     W.つながり忘却 = f
     for s in 種:
-        keep.clear(); o8 = W.一生(s, '依存', h, 寿命=8000); l8 = link(s)
-        keep.clear(); o = W.一生(s, '依存', h); l12 = link(s)
-        assert (o['行動列'][:8000] == o8['行動列']).all()
+        keep.clear(); snap.clear(); o = W.一生(s, '依存', h); l8 = link(s, True); l12 = link(s)
         A, 相, b = o['行動列'], o['相手列'], o['一番']
         P = lambda lo, hi: float(np.mean([(A[lo:hi, i][相[lo:hi, i] == 0] == b).mean() for i in range(8)]))
         hl = o['h列'].mean(axis=1)

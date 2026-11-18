@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "<experiments>/S5b_忘れの速さ_20261118/走らせる.py", line 19, in <module>
+    assert (o['行動列'][:8000] == o8['行動列']).all()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
