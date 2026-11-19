@@ -13,7 +13,7 @@ if __name__ == '__main__':
     d = {(s, 層, 手): (a, b, c) for s, 層, 手, a, b, c in r}
     効 = lambda s, 層: d[(s, 層, True)][1] - d[(s, 層, False)][1]
     res = dict(H1_記憶でまねが知識になる=int(sum(効(s, True) > 0 for s in S)), H2_記憶のほうがお手本の効きが大きい=int(sum(効(s, True) > 効(s, False) for s in S)),
-               H3_お手本ありで記憶が乗り換え速い=int(sum(d[(s, True, True)][0] > d[(s, False, True)][0] for s in S)), 参考_お手本が見る時の当たり_記憶>一層=int(sum(d[(s, True, True)][2] > d[(s, False, True)][2] for s in S)))
+               H3_お手本ありで記憶が乗り換え速い=int(sum(d[(s, True, True)][0] > d[(s, False, True)][0] for s in S)), 参考_お手本が見る時の当たりが記憶で大=int(sum(d[(s, True, True)][2] > d[(s, False, True)][2] for s in S)))
     res['判定'] = {k: res[k] >= 20 for k in ['H1_記憶でまねが知識になる', 'H2_記憶のほうがお手本の効きが大きい', 'H3_お手本ありで記憶が乗り換え速い']}
     res['中央値'] = {f'{"記憶" if 層 else "一層"}_{"お手本あり" if 手 else "なし"}': dict(乗り換え=round(float(np.median([d[(s, 層, 手)][0] for s in S])), 3), 他が見る時=round(float(np.median([d[(s, 層, 手)][1] for s in S])), 3), お手本が見る時=round(float(np.median([d[(s, 層, 手)][2] for s in S])), 3)) for 層, 手 in 腕}
     print(json.dumps(res, ensure_ascii=False)); json.dump(dict(結果=res, 行=r), open(f'結果_{段}.json', 'x'), ensure_ascii=False, indent=1)
