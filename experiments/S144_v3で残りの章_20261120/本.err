@@ -1,0 +1,4 @@
+  File "<experiments>/S144_v3で残りの章_20261120/走らせる.py", line 12
+    res['中央値'] = {名: dict(S135交代の差=round(float(np.median(r[k, 0, :, 0])), 3), S135でたらめの差=round(float(np.median(r[k, 0, :, 1])), 3), S90新−古=round(float(np.median(r[k, 1, :, 0])), 3)) for k, 名 in enumerate(G.構成)}
+                                                                                                                                        ^
+SyntaxError: invalid character '−' (U+2212)
