@@ -1,0 +1,60 @@
+<experiments>/S217_噂_20261121/数え.py:16: RuntimeWarning: Mean of empty slice
+  return float(np.mean([x[0] for x in r])), float(np.nanmean([x[1] for x in r])), r[0][2]
+<experiments>/S217_噂_20261121/数え.py:16: RuntimeWarning: Mean of empty slice
+  return float(np.mean([x[0] for x in r])), float(np.nanmean([x[1] for x in r])), r[0][2]
+<experiments>/S217_噂_20261121/数え.py:16: RuntimeWarning: Mean of empty slice
+  return float(np.mean([x[0] for x in r])), float(np.nanmean([x[1] for x in r])), r[0][2]
+<experiments>/S217_噂_20261121/数え.py:16: RuntimeWarning: Mean of empty slice
+  return float(np.mean([x[0] for x in r])), float(np.nanmean([x[1] for x in r])), r[0][2]
+<experiments>/S217_噂_20261121/数え.py:16: RuntimeWarning: Mean of empty slice
+  return float(np.mean([x[0] for x in r])), float(np.nanmean([x[1] for x in r])), r[0][2]
+<experiments>/S217_噂_20261121/数え.py:16: RuntimeWarning: Mean of empty slice
+  return float(np.mean([x[0] for x in r])), float(np.nanmean([x[1] for x in r])), r[0][2]
+<experiments>/S217_噂_20261121/数え.py:16: RuntimeWarning: Mean of empty slice
+  return float(np.mean([x[0] for x in r])), float(np.nanmean([x[1] for x in r])), r[0][2]
+<experiments>/S217_噂_20261121/数え.py:16: RuntimeWarning: Mean of empty slice
+  return float(np.mean([x[0] for x in r])), float(np.nanmean([x[1] for x in r])), r[0][2]
+<experiments>/S217_噂_20261121/数え.py:16: RuntimeWarning: Mean of empty slice
+  return float(np.mean([x[0] for x in r])), float(np.nanmean([x[1] for x in r])), r[0][2]
+<experiments>/S217_噂_20261121/数え.py:16: RuntimeWarning: Mean of empty slice
+  return float(np.mean([x[0] for x in r])), float(np.nanmean([x[1] for x in r])), r[0][2]
+<experiments>/S217_噂_20261121/数え.py:16: RuntimeWarning: Mean of empty slice
+  return float(np.mean([x[0] for x in r])), float(np.nanmean([x[1] for x in r])), r[0][2]
+<experiments>/S217_噂_20261121/数え.py:16: RuntimeWarning: Mean of empty slice
+  return float(np.mean([x[0] for x in r])), float(np.nanmean([x[1] for x in r])), r[0][2]
+<experiments>/S217_噂_20261121/数え.py:16: RuntimeWarning: Mean of empty slice
+  return float(np.mean([x[0] for x in r])), float(np.nanmean([x[1] for x in r])), r[0][2]
+<experiments>/S217_噂_20261121/数え.py:16: RuntimeWarning: Mean of empty slice
+  return float(np.mean([x[0] for x in r])), float(np.nanmean([x[1] for x in r])), r[0][2]
+<experiments>/S217_噂_20261121/数え.py:16: RuntimeWarning: Mean of empty slice
+  return float(np.mean([x[0] for x in r])), float(np.nanmean([x[1] for x in r])), r[0][2]
+<experiments>/S217_噂_20261121/数え.py:16: RuntimeWarning: Mean of empty slice
+  return float(np.mean([x[0] for x in r])), float(np.nanmean([x[1] for x in r])), r[0][2]
+<experiments>/S217_噂_20261121/数え.py:16: RuntimeWarning: Mean of empty slice
+  return float(np.mean([x[0] for x in r])), float(np.nanmean([x[1] for x in r])), r[0][2]
+<experiments>/S217_噂_20261121/数え.py:16: RuntimeWarning: Mean of empty slice
+  return float(np.mean([x[0] for x in r])), float(np.nanmean([x[1] for x in r])), r[0][2]
+<experiments>/S217_噂_20261121/数え.py:16: RuntimeWarning: Mean of empty slice
+  return float(np.mean([x[0] for x in r])), float(np.nanmean([x[1] for x in r])), r[0][2]
+<experiments>/S217_噂_20261121/数え.py:16: RuntimeWarning: Mean of empty slice
+  return float(np.mean([x[0] for x in r])), float(np.nanmean([x[1] for x in r])), r[0][2]
+<experiments>/S217_噂_20261121/数え.py:16: RuntimeWarning: Mean of empty slice
+  return float(np.mean([x[0] for x in r])), float(np.nanmean([x[1] for x in r])), r[0][2]
+<experiments>/S217_噂_20261121/数え.py:16: RuntimeWarning: Mean of empty slice
+  return float(np.mean([x[0] for x in r])), float(np.nanmean([x[1] for x in r])), r[0][2]
+<experiments>/S217_噂_20261121/数え.py:16: RuntimeWarning: Mean of empty slice
+  return float(np.mean([x[0] for x in r])), float(np.nanmean([x[1] for x in r])), r[0][2]
+<experiments>/S217_噂_20261121/数え.py:16: RuntimeWarning: Mean of empty slice
+  return float(np.mean([x[0] for x in r])), float(np.nanmean([x[1] for x in r])), r[0][2]
+<experiments>/S217_噂_20261121/数え.py:16: RuntimeWarning: Mean of empty slice
+  return float(np.mean([x[0] for x in r])), float(np.nanmean([x[1] for x in r])), r[0][2]
+<experiments>/S217_噂_20261121/数え.py:16: RuntimeWarning: Mean of empty slice
+  return float(np.mean([x[0] for x in r])), float(np.nanmean([x[1] for x in r])), r[0][2]
+<experiments>/S217_噂_20261121/数え.py:16: RuntimeWarning: Mean of empty slice
+  return float(np.mean([x[0] for x in r])), float(np.nanmean([x[1] for x in r])), r[0][2]
+<experiments>/S217_噂_20261121/数え.py:16: RuntimeWarning: Mean of empty slice
+  return float(np.mean([x[0] for x in r])), float(np.nanmean([x[1] for x in r])), r[0][2]
+<experiments>/S217_噂_20261121/数え.py:16: RuntimeWarning: Mean of empty slice
+  return float(np.mean([x[0] for x in r])), float(np.nanmean([x[1] for x in r])), r[0][2]
+<experiments>/S217_噂_20261121/数え.py:16: RuntimeWarning: Mean of empty slice
+  return float(np.mean([x[0] for x in r])), float(np.nanmean([x[1] for x in r])), r[0][2]
