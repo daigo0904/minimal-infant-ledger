@@ -1,0 +1,30 @@
+"""S227 言葉が要る世界（言葉の章の最初）：知っている子と動ける子を分ける。
+赤ちゃん8人。毎手、乱数［種,40］で 4組（話し手・聞き手）に組み替える。各組に ご飯の場所 L（4か所、乱数［種,41］）。
+話し手：入力に 場所 L（4つの印）と「話し手」の印。手（4つ）がそのまま合図になる。自分では食べない。
+聞き手：入力に 合図（4つの印）と「聞き手」の印（見える＝True なら 場所 L も）。手（4つ）が選んだ場所。当たれば食べる（空腹 −一食）。
+話し手は共感で、聞き手の苦しさ（h²）が減った分 を 共感量 に（頭が kE 倍して前の手の報酬に足す）。
+入力は 場所4＋合図4＋役1＝9次元（頭の感覚に入る）。"""
+import hashlib, numpy as np
+人数 = 8; 次元 = 9
+def 一生(種, 包, W, 寿命=16000, 見える=False, 頭='獲得型'):
+    W.見た目次元 = 次元
+    子 = [包(種, i, 頭) for i in range(人数)]
+    組乱 = np.random.default_rng([種, 40]); 場乱 = np.random.default_rng([種, 41])
+    話列 = np.zeros((寿命, 4), dtype=np.int8); 聞列 = np.zeros((寿命, 4), dtype=np.int8); 合列 = np.zeros((寿命, 4), dtype=np.int8); 場列 = np.zeros((寿命, 4), dtype=np.int8); 当列 = np.zeros((寿命, 4), dtype=bool)
+    h列 = np.zeros((寿命 // 100, 人数)); sha = hashlib.sha256()
+    for t in range(寿命):
+        並 = 組乱.permutation(人数); L = 場乱.integers(4, size=4)
+        for p in range(4):
+            sp, li = int(並[2 * p]), int(並[2 * p + 1]); 話列[t, p], 聞列[t, p], 場列[t, p] = sp, li, L[p]
+            x = np.zeros(次元); x[L[p]] = 1.0; x[8] = 1.0
+            φs = 子[sp].感覚(x); a_s, q_s, _ = 子[sp].選ぶ(φs); 合列[t, p] = a_s
+            y = np.zeros(次元); y[4 + a_s] = 1.0
+            if 見える: y[L[p]] = 1.0
+            φl = 子[li].感覚(y); a_l, q_l, _ = 子[li].選ぶ(φl); 当 = (a_l == L[p]); 当列[t, p] = 当
+            前h = 子[li].h
+            子[sp].受ける(φs, a_s, q_s, 0.0, False, 0.0)
+            子[li].受ける(φl, a_l, q_l, 0.0, bool(当), 0.0)
+            子[sp].共感量 = 前h ** 2 - 子[li].h ** 2 if 当 else 0.0
+        if t % 100 == 0: h列[t // 100] = [c.h for c in 子]
+        sha.update(合列[t].tobytes()); sha.update(当列[t].tobytes())
+    return dict(話列=話列, 聞列=聞列, 合列=合列, 場列=場列, 当列=当列, h列=h列, sha256=sha.hexdigest())
