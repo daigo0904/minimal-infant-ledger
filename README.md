@@ -14,6 +14,12 @@ Code, preregistrations and per-world results for experiments **S1–S246** repor
 
 Folder and file names are in Japanese. Reported values are medians over 30 worlds; tuning used seeds 900–909, the main run and the replication each used 30 new seeds, and the usual pass threshold was 20/30 worlds (see each `事前登録.md`).
 
+## Confirmatory test S252
+
+Preregistration released before the run: doi:10.5281/zenodo.24432900 (archived 2026-11-22 03:36 UTC; run started 03:37 UTC). Result: 9 of 10 hypotheses passed in both runs; C5 (the bond's added effect is smaller in the unrelated world) failed in both runs, as predicted in the preregistration. Results are in `experiments/S252_*/結果_本.json` and `結果_追試.json`.
+
+`analysis/effects.py` computes per-world effect sizes with bootstrap intervals for the paper's headline comparisons.
+
 ## Running
 
 Python 3 with NumPy. Run a script from inside its own folder, e.g.

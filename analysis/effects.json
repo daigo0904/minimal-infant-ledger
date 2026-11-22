@@ -1,0 +1,258 @@
+{
+ "S48 B0 − shifted bond (last)": {
+  "本": {
+   "n": 30,
+   "median": 0.297,
+   "lo": 0.276,
+   "hi": 0.315,
+   "share_pos": 1.0
+  },
+  "追試": {
+   "n": 30,
+   "median": 0.305,
+   "lo": 0.28,
+   "hi": 0.316,
+   "share_pos": 1.0
+  }
+ },
+ "S48 B0 − instrumental (last)": {
+  "本": {
+   "n": 30,
+   "median": 0.11,
+   "lo": 0.09,
+   "hi": 0.127,
+   "share_pos": 0.967
+  },
+  "追試": {
+   "n": 30,
+   "median": 0.12,
+   "lo": 0.095,
+   "hi": 0.143,
+   "share_pos": 1.0
+  }
+ },
+ "S74 B0 − shifted bond (last)": {
+  "本": {
+   "n": 30,
+   "median": 0.298,
+   "lo": 0.286,
+   "hi": 0.321,
+   "share_pos": 1.0
+  },
+  "追試": {
+   "n": 30,
+   "median": 0.305,
+   "lo": 0.291,
+   "hi": 0.319,
+   "share_pos": 1.0
+  }
+ },
+ "S74 B0 − instrumental (last)": {
+  "本": {
+   "n": 30,
+   "median": 0.145,
+   "lo": 0.131,
+   "hi": 0.177,
+   "share_pos": 1.0
+  },
+  "追試": {
+   "n": 30,
+   "median": 0.163,
+   "lo": 0.145,
+   "hi": 0.181,
+   "share_pos": 1.0
+  }
+ },
+ "S129 reunion change, kD30 − B0": {
+  "本": {
+   "n": 30,
+   "median": 0.062,
+   "lo": 0.047,
+   "hi": 0.083,
+   "share_pos": 0.933
+  },
+  "追試": {
+   "n": 30,
+   "median": 0.065,
+   "lo": 0.046,
+   "hi": 0.084,
+   "share_pos": 0.967
+  }
+ },
+ "S131 reunion change, kD30 − B0": {
+  "本": {
+   "n": 30,
+   "median": 0.111,
+   "lo": 0.082,
+   "hi": 0.126,
+   "share_pos": 1.0
+  },
+  "追試": {
+   "n": 30,
+   "median": 0.095,
+   "lo": 0.083,
+   "hi": 0.11,
+   "share_pos": 1.0
+  }
+ },
+ "S130 reunion change after 250 steps (kD30)": {
+  "本": {
+   "n": 30,
+   "median": 0.02,
+   "lo": 0.011,
+   "hi": 0.029,
+   "share_pos": 0.767
+  },
+  "追試": {
+   "n": 30,
+   "median": 0.034,
+   "lo": 0.022,
+   "hi": 0.044,
+   "share_pos": 0.9
+  }
+ },
+ "S130 reunion change after 500 steps (kD30)": {
+  "本": {
+   "n": 30,
+   "median": 0.018,
+   "lo": 0.007,
+   "hi": 0.03,
+   "share_pos": 0.833
+  },
+  "追試": {
+   "n": 30,
+   "median": 0.027,
+   "lo": 0.02,
+   "hi": 0.044,
+   "share_pos": 0.9
+  }
+ },
+ "S130 reunion change after 1000 steps (kD30)": {
+  "本": {
+   "n": 30,
+   "median": 0.003,
+   "lo": -0.003,
+   "hi": 0.023,
+   "share_pos": 0.567
+  },
+  "追試": {
+   "n": 30,
+   "median": 0.021,
+   "lo": 0.011,
+   "hi": 0.027,
+   "share_pos": 0.733
+  }
+ },
+ "S152 v4 − B0: audience": {
+  "本": {
+   "n": 30,
+   "median": 0.069,
+   "lo": 0.051,
+   "hi": 0.084,
+   "share_pos": 1.0
+  },
+  "追試": {
+   "n": 30,
+   "median": 0.075,
+   "lo": 0.064,
+   "hi": 0.086,
+   "share_pos": 1.0
+  }
+ },
+ "S152 v4 − B0: reunion change": {
+  "本": {
+   "n": 30,
+   "median": 0.096,
+   "lo": 0.079,
+   "hi": 0.118,
+   "share_pos": 1.0
+  },
+  "追試": {
+   "n": 30,
+   "median": 0.091,
+   "lo": 0.083,
+   "hi": 0.108,
+   "share_pos": 1.0
+  }
+ },
+ "S152 v4 − B0: gaze (mid-pref.)": {
+  "本": {
+   "n": 30,
+   "median": 0.595,
+   "lo": 0.564,
+   "hi": 0.616,
+   "share_pos": 1.0
+  },
+  "追試": {
+   "n": 30,
+   "median": 0.595,
+   "lo": 0.564,
+   "hi": 0.615,
+   "share_pos": 1.0
+  }
+ },
+ "S152 v4 − B0: imperative pointing": {
+  "本": {
+   "n": 30,
+   "median": 0.179,
+   "lo": 0.164,
+   "hi": 0.204,
+   "share_pos": 1.0
+  },
+  "追試": {
+   "n": 30,
+   "median": 0.191,
+   "lo": 0.16,
+   "hi": 0.244,
+   "share_pos": 1.0
+  }
+ },
+ "S152 v4 − B0: declarative growth": {
+  "本": {
+   "n": 30,
+   "median": 0.274,
+   "lo": 0.191,
+   "hi": 0.322,
+   "share_pos": 1.0
+  },
+  "追試": {
+   "n": 30,
+   "median": 0.237,
+   "lo": 0.172,
+   "hi": 0.286,
+   "share_pos": 1.0
+  }
+ },
+ "S152 v4 reunion change (>0)": {
+  "本": {
+   "n": 30,
+   "median": 0.068,
+   "lo": 0.063,
+   "hi": 0.079,
+   "share_pos": 1.0
+  },
+  "追試": {
+   "n": 30,
+   "median": 0.065,
+   "lo": 0.061,
+   "hi": 0.076,
+   "share_pos": 1.0
+  }
+ },
+ "S152 v4 declarative growth (>0)": {
+  "本": {
+   "n": 30,
+   "median": 0.059,
+   "lo": 0.036,
+   "hi": 0.076,
+   "share_pos": 0.967
+  },
+  "追試": {
+   "n": 30,
+   "median": 0.066,
+   "lo": 0.057,
+   "hi": 0.087,
+   "share_pos": 1.0
+  }
+ }
+}
