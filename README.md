@@ -20,6 +20,13 @@ Preregistration released before the run: doi:10.5281/zenodo.24432900 (archived 2
 
 `analysis/effects.py` computes per-world effect sizes with bootstrap intervals for the paper's headline comparisons.
 
+## Reproducing
+
+- Environment used for all runs: Python 3.14.6, NumPy 2.5.1 (`requirements.txt`), macOS 27 on arm64. NumPy is the only dependency.
+- Seeds, parameters and world settings are written in each experiment's script and preregistration; per-world raw values are in `結果_本.json` / `結果_追試.json` (key `行` or `値`), and each script recomputes its own summary.
+- Quick check: `python3 analysis/check_reproduce.py` re-runs 12 stored worlds (S152 B0 and v4 on five chapters, S48, S41) through the frozen S252 script and compares them with the stored values. It prints `12/12 values reproduced exactly` on the machine above.
+- The confirmatory test: `cd experiments/S252_*; python3 本番テスト.py 本` (and `追試`), about 25 minutes each on 8 cores.
+
 ## Running
 
 Python 3 with NumPy. Run a script from inside its own folder, e.g.
