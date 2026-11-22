@@ -29,7 +29,8 @@ Scripts load code from sibling experiment folders through `../`.
 
 - Absolute paths to the author's home directory were replaced by relative paths (`../`) in scripts and by `<experiments>/` in logs. Nothing else was changed.
 - `preregistration_timestamps.tsv` comes from the author's private repository and cannot be checked independently; the archived snapshot of this repository fixes the state from its release date onward. 30 folders are tuning-only or diagnostic and have no main-run file.
-- Experiments after S246 are not included.
+- Experiments after S246 are not included, except `experiments/S252_*`: a confirmatory test on frozen code whose preregistration was released (and archived on Zenodo) before it was run.
+- Branch `prereg-history` replays the original commit history of the S1–S246 folders (488 commits, original dates, author name replaced, same path substitutions). Commit dates in git can be set by the author, so this shows order, not proof.
 
 ## License
 
