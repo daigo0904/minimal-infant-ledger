@@ -1,0 +1,2 @@
+<experiments>/S165_見慣れなさは分からなさ_20261120/診断.py:17: RuntimeWarning: All-NaN slice encountered
+  m = np.nanmedian(r, 0); print(f'u 3500-4000 養育者 {m[0]:.4f} 仲間 {m[1]:.4f} ／ 4000-4500 養育者 {m[3]:.4f} 仲間 {m[4]:.4f} 知らない {m[5]:.4f} ／ 7000-8000 養育者 {m[6]:.4f} 仲間 {m[7]:.4f} 知らない {m[8]:.4f}')

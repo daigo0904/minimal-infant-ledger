@@ -1,0 +1,700 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>赤ちゃんAIの見取り図</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=Zen+Kaku+Gothic+New:wght@500;700;900&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* 研究ノートの見開き：左に流れ図、下に版ごとの記録。色は「羊水」の青緑を1つだけ使う */
+:root{
+  --bg:#f2f5f6; --paper:#ffffff; --ink:#18242c; --sub:#56656f; --line:#d5dee2;
+  --accent:#0d7a77; --accent-soft:#dcefee;
+  --win:#1f7a45; --win-soft:#e1f2e7; --lose:#a8392f; --lose-soft:#f7e3e0;
+  --hole:#9a6a00; --hole-soft:#f6ecd2; --run:#3b5bab; --run-soft:#e3e9f7;
+  --f-display:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",sans-serif;
+  --f-body:"BIZ UDPGothic","Hiragino Sans","Yu Gothic",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10171b; --paper:#172127; --ink:#e3ebee; --sub:#9aabb4; --line:#2b3a42;
+  --accent:#4fc2bd; --accent-soft:#163633;
+  --win:#6ccf93; --win-soft:#17301f; --lose:#ee8a7f; --lose-soft:#3a1d1a;
+  --hole:#e0b44f; --hole-soft:#352a12; --run:#8fa9ef; --run-soft:#1c2540; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10171b; --paper:#172127; --ink:#e3ebee; --sub:#9aabb4; --line:#2b3a42;
+  --accent:#4fc2bd; --accent-soft:#163633;
+  --win:#6ccf93; --win-soft:#17301f; --lose:#ee8a7f; --lose-soft:#3a1d1a;
+  --hole:#e0b44f; --hole-soft:#352a12; --run:#8fa9ef; --run-soft:#1c2540; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.75}
+.wrap{max-width:1040px;margin:0 auto;padding-inline:20px;padding-block:28px 64px;display:grid;gap:44px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.35}
+h1{font-size:clamp(28px,5vw,40px);font-weight:900;letter-spacing:.01em}
+h2{font-size:22px;font-weight:700;display:flex;gap:10px;align-items:baseline}
+h2 .tag{font-family:var(--f-mono);font-size:12px;color:var(--accent);letter-spacing:.08em}
+h3{font-size:16px;font-weight:700}
+p{margin:0}
+.muted{color:var(--sub)}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+section{display:grid;gap:16px;min-width:0}
+header{display:grid;gap:14px}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13px;color:var(--sub)}
+.quote{border-left:3px solid var(--accent);padding:4px 0 4px 16px;display:grid;gap:6px;max-width:68ch}
+.quote p{font-size:17px}
+.quote .who{font-size:12px;color:var(--sub)}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;padding:1px 9px;border-radius:99px;white-space:nowrap;font-family:var(--f-body)}
+.c-win{background:var(--win-soft);color:var(--win)}
+.c-lose{background:var(--lose-soft);color:var(--lose)}
+.c-hole{background:var(--hole-soft);color:var(--hole)}
+.c-run{background:var(--run-soft);color:var(--run)}
+.c-note{background:var(--accent-soft);color:var(--accent)}
+
+/* 流れ図 */
+.flow{display:grid;gap:14px}
+.root{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;gap:6px}
+.lanes{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:720px){.lanes{grid-template-columns:1fr}}
+.lane{display:grid;gap:0;align-content:start;min-width:0}
+.lane-h{font-family:var(--f-display);font-weight:700;font-size:15px;padding:8px 0 10px;border-bottom:2px solid var(--accent);margin-bottom:12px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.lane-h span{font-weight:500;font-size:12px;color:var(--sub)}
+.node{position:relative;padding:0 0 18px 22px}
+.node::before{content:"";position:absolute;left:6px;top:8px;bottom:0;width:2px;background:var(--line)}
+.node:last-child::before{display:none}
+.node::after{content:"";position:absolute;left:1px;top:7px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--accent)}
+.node.research::after{border-style:dashed;border-color:var(--sub)}
+.node.running::after{border-color:var(--run);background:var(--run-soft)}
+.node .v{font-family:var(--f-mono);font-size:12px;color:var(--accent);font-weight:600}
+.node .t{font-weight:700}
+.node .d{font-size:13.5px;color:var(--sub)}
+.node .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+
+/* 共通の作り */
+.kit{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.kit div{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;gap:4px;align-content:start}
+.kit b{font-family:var(--f-display)}
+.kit p{font-size:13.5px;color:var(--sub)}
+
+/* 表 */
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--paper)}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:13.5px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--f-display);font-weight:700;font-size:12.5px;color:var(--sub);background:var(--bg)}
+tr:last-child td{border-bottom:none}
+td.v{font-family:var(--f-mono);color:var(--accent);font-weight:600;white-space:nowrap}
+
+/* 分かったこと */
+.finds{display:grid;gap:12px;counter-reset:f}
+.find{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.find .n{font-family:var(--f-mono);font-weight:600;color:var(--accent);font-size:14px;grid-row:span 2}
+.find .h{font-weight:700}
+.find .b{font-size:13.5px;color:var(--sub)}
+
+/* グラフ */
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:760px){.charts{grid-template-columns:1fr}}
+figure{margin:0;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px 14px 10px;display:grid;gap:8px;min-width:0}
+figcaption{font-size:13px;color:var(--sub)}
+figure .ttl{font-weight:700;font-size:14px}
+svg{width:100%;height:auto;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--sub)}
+.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:5px}
+
+/* 展望 */
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;gap:8px;align-content:start}
+.card ul{margin:0;padding-left:1.2em;display:grid;gap:6px;font-size:14px}
+.card li::marker{color:var(--accent)}
+.card .lab{font-size:12px;letter-spacing:.06em;color:var(--sub);font-weight:700}
+.limits ul{margin:0;padding-left:1.2em;display:grid;gap:6px;max-width:72ch}
+.where{font-size:13px;color:var(--sub);display:grid;gap:4px}
+code{font-family:var(--f-mono);font-size:.92em;background:var(--accent-soft);padding:0 5px;border-radius:4px;word-break:break-all}
+</style>
+<style>
+.now{background:var(--run-soft);border:1px solid var(--run);border-radius:10px;padding:16px 18px;display:grid;gap:10px}
+.now .lab{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;color:var(--run);font-weight:600}
+.now h3{font-size:18px}
+.now ol{margin:0;padding-left:1.3em;display:grid;gap:6px;font-size:14px}
+.now .ask{border-top:1px dashed var(--run);padding-top:10px;font-size:14px}
+.phase{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;gap:12px}
+.phase-h{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;border-bottom:2px solid var(--accent);padding-bottom:8px}
+.phase-h b{font-family:var(--f-display);font-size:17px}
+.phase-h span{font-size:12.5px;color:var(--sub)}
+.lanes3{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+.lane-s{font-family:var(--f-display);font-weight:700;font-size:13.5px;color:var(--accent);margin-bottom:8px}
+.arrow{text-align:center;color:var(--sub);font-size:13px}
+td .chip{margin:1px 2px 1px 0}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="meta"><span class="mono">~/赤ちゃんAI</span><span>2026-11-18 更新（第4部 リザバーの頭・見られ方の線を追加。第1〜3部は 10/12 朝のまま）</span><span>耳の実験 版0〜20 ＋ 総当たり1 ／ 成長できる箱 STEP1〜5b ／ 新しい頭 v0〜v2d・logだけ・好奇心 v0</span></div>
+  <h1>赤ちゃんAIの見取り図</h1>
+  <div class="quote">
+    <p>人間と同じように育てた場合、人間のような、環境と結びつける「イコール」が形成されるのか？　AIのイコールは人間的な形成ではないから、AI赤ちゃんをするんだよ。</p>
+    <p class="who">本人・10/09 朝。10/11「トランスフォーマーや今のニューラルネットには限界がある。新しいアーキテクチャを作る」</p>
+  </div>
+</header>
+
+<section>
+  <h2><span class="tag">NEW</span>第4部　リザバーの頭・見られ方の線（11/18）</h2>
+  <div class="now">
+    <div class="lab">10/21 本人の決定で頭を作り直した（リザバー＋RLS）。11/18 本人「相手からどう見られたいか、のホメオスタシスを足したい」→ 方向決めを任された</div>
+    <h3>「誰に見られているかで行動を変える」は、育ちで身につくか</h3>
+    <p style="font-size:14px">世界：赤ちゃん8人＋養育者1人。養育者は好きな行動をした子を好きになり、好きな子ほどよく食べさせる。他の赤ちゃんは「自分と同じことをした子」を好む。各版 10世界×本・追試。判定の線は走らせる前に Git に固定。</p>
+    <div class="tbl"><table>
+      <thead><tr><th>版</th><th>問い</th><th>判定（本・追試）</th><th>一番大事な数字</th></tr></thead>
+      <tbody>
+        <tr><td class="v">S1</td><td>見られたい目標（生まれつき／育ち）に向けて行動を整えるか</td><td><span class="chip c-win">全○</span><span class="chip c-lose">育ちで出る 6/10</span></td><td>目標の順に見られる 20/20 世界。ただし相手を番号で渡したので、見られ分けは最初の500手で完成（作りから）</td></tr>
+        <tr><td class="v">S2</td><td>空腹だけで生まれ、見た目から覚えると見られ分けが育つか</td><td><span class="chip c-hole">全○だが不具合由来</span></td><td>つながりの基準が +0.18 ずれていた（S3 の診断で発見）</td></tr>
+        <tr><td class="v">S2b〜S2d</td><td>不具合を1か所ずつ直して測り直す</td><td><span class="chip c-lose">出る ×</span><span class="chip c-win">依存の世界だけ ○×6</span></td><td>見られ分け差 0.08〜0.15（線 0.15）。食べ物が見られ方と無関係の世界では ≈0</td></tr>
+        <tr><td class="v">S2e</td><td>弱い原因（診断）</td><td><span class="chip c-note">4つとも当たり</span></td><td>他の子に見られていても喜ばせ行動 0.59。給餌の差2倍で 0.11→0.22</td></tr>
+        <tr><td class="v">S4</td><td>見分ける力（感覚64→256・見た目の雑音0.6→0.3）で見られ分けが強まるか</td><td><span class="chip c-win">獲得型 ○○</span><span class="chip c-lose">道具型 ××</span></td><td>獲得型 0.085→0.179（本）・0.079→0.224（追試）</td></tr>
+        <tr><td class="v">S5</td><td>離乳後（好かれても得はなく、空腹の代価だけ）も好かれようとするか</td><td><span class="chip c-win">喜ばせ続ける ○○</span><span class="chip c-win">空腹を払う ○○</span><span class="chip c-lose">見られ分けが残る ××</span></td><td>離乳後の喜ばせ 獲得型 0.58・道具型 0.42、空腹 0.54 対 0.45（本）。残るのは つながりの忘れが遅い作り（0.9999）から来うる</td></tr>
+        <tr><td class="v">S5b</td><td>残るのは忘れの遅さだけか（忘れ 0.999 の腕）</td><td><span class="chip c-lose">速くても残る ××</span><span class="chip c-win">遅いほど残る ○○</span></td><td>離乳後の喜ばせ 遅 0.62・速 0.46・道具 0.49（本）／0.56・0.41・0.37（追試）。速いと空腹だけの頭と変わらない＝「残る」は忘れの遅さで説明できる</td></tr>
+        <tr><td class="v">S6・S6b</td><td>初めの見られ分け（0.05〜0.09）は揺れの片寄りか</td><td><span class="chip c-hole">S6 測れていない</span><span class="chip c-note">S6b 本× 追試○</span></td><td>S6 の対照は最初1000手 道具型と同じ一生だった。作り直し（隣の子の食べ物で揺らす）で初め 0.032・0.041（獲得型 0.070・道具型 0.019・0.010）＝初めの値の半分ほどは揺れでも出る。育った後は 獲得型＞揺らし 9/10・9/10</td></tr>
+        <tr><td class="v">S7</td><td>本人の最初の案：見られたい目標（ホメオスタシス）を足すと、養育者が来ないと喜ばせが増え、いつも見られると減るか</td><td><span class="chip c-lose">欠乏で増える ××</span><span class="chip c-lose">飽和で減る ××</span></td><td>中の値は設計どおり動く（欠乏で r_c 0.25→0.07・飽和で 0.29）が、行動の差は 本 8/10・中央値 0.038（線 0.05）／追試 3/10。目標なしの頭も本で欠乏後 +0.118</td></tr>
+        <tr><td class="v">S8</td><td>見分ける力が育つと（見た目の型16個を経験で覚える）、見られ分けも育つか。前提の訂正：頭.py のリザバーは結合が固定で、状態は育たない</td><td><span class="chip c-lose">育つと出る ××</span><span class="chip c-lose">育つ＞固定 ××</span></td><td>逆向き：見られ分けは初めが最大（0.12・0.16）で、育つ感覚では 0.005・0.011 まで下がる（固定は 0.046）。他の子に見られても喜ばせる「漏れ」が 0.27→0.55〜0.64 に増える</td></tr>
+        <tr><td class="v">S9</td><td>漏れの出どころ（診断）</td><td><span class="chip c-note">Q・つながり 両方</span></td><td>他の子の見た目で喜ばせ行動を選ぶ割合：Qだけ 0.56〜0.61・つながりだけ 0.42〜0.78。評価の予測は他の子も「養育者の一番」を +0.46〜0.57 高く見積もる＝みんながその行動をするので、他の子にも実際に褒められている可能性</td></tr>
+        <tr><td class="v">S10・S10b</td><td>漏れは「他の子が自分と同じ行動を褒める」作りからか／般化か</td><td><span class="chip c-lose">世界の作り ××</span><span class="chip c-lose">般化 ×</span></td><td>他の子の好みを養育者と無関係にしても P他 0.53・見られ分け 0.18〜0.19 で変わらない。評価の予測はその世界で正しく −0.40（般化していない）＝残る出どころは空腹の学習（Q）</td></tr>
+        <tr><td class="v">S11</td><td>Q が見分けない理由（診断）</td><td><span class="chip c-lose">定数が勝つ ××</span><span class="chip c-note">目標が違う 本× 追試○</span></td><td>Q は養育者の前 0.37・0.46、他の子の前 0.18・0.23 で一番を推す（定数の部分は 0.01）。他の子の前でも一番の後はよく食べている（0.25〜0.26 対 ほか 0.22〜0.24）＝Q は記録どおりに学んでいる</td></tr>
+        <tr><td class="v">S12</td><td>その相関の正体。前提の訂正：他の子の前の行動は作り上、食べ物を直接変えない（気に入り g は養育者の前でしか動かない）ので、介入ではなく g をそろえて比べた</td><td><span class="chip c-win">g で消える ○○</span></td><td>差 0.040→0.006（本）・0.065→0.008（追試）＝他の子の前で喜ばせる子は、そのとき養育者に気に入られている子。Q は「一緒に起きること」を「効くこと」と取り違えている</td></tr>
+        <tr><td class="v">S13</td><td>長く育てる（24000手）と漏れは減り、見られ分けは育つか</td><td><span class="chip c-lose">漏れが減る ××</span><span class="chip c-lose">育つ ××</span></td><td>逆向き：獲得型の P他 0.36→0.50→0.60（本）、見られ分け 0.17→0.13（本）・0.19→0.08（追試）。道具型も同じ向き。取り違えは経験で直らず、たまっていく</td></tr>
+        <tr><td class="v">S14</td><td>探り（でたらめに選ぶ割合）を 0.1→0.3 にすると取り違えが減るか（探らなければ選んだ行動で数える）</td><td><span class="chip c-note">漏れが減る 本○ 追試×</span><span class="chip c-lose">見られ分け ××</span></td><td>P他 0.505→0.485（本 8/10）・0.522→0.483（追試 6/10）。見られ分けは 0.27→0.21・0.17→0.20（4/10・5/10）。探りではほとんど変わらない</td></tr>
+        <tr><td class="v">S15</td><td>Q に見た目を渡さないと漏れは消えるか</td><td><span class="chip c-lose">漏れが減る ××</span><span class="chip c-lose">見られ分けが増える ××</span></td><td>逆向き：P他はそのまま（0.56・0.55／0.58・0.52）で、P養が 0.74→0.63・0.76→0.61 に下がり、見られ分けは半分（0.16→0.09・0.18→0.09）。Q の見た目入力は漏らすより、養育者の前での喜ばせを増やす側で効いていた</td></tr>
+        <tr><td class="v">S16</td><td>漏れは気に入りの持ち越しによる取り違えか（給餌を「その手だけ」にする）</td><td><span class="chip c-lose">漏れが減る ××</span><span class="chip c-win">見られ分けが増える ○○</span></td><td>P他は変わらない（0.52・0.52／0.48・0.49）。P養が 0.70→0.82・0.70→0.79 に上がり見られ分け 0.18→0.30・0.21→0.30。ただし食べ物も増えた（0.047→0.063）。S12 の説明は漏れの原因ではなかった</td></tr>
+        <tr><td class="v">S17</td><td>右脳・左脳（64 tanh ×2・本人の案）：①役割（右＝相手の見た目・左＝自分の体）②見方（ざっくり／細かく）③脳梁あり／なし。合計128の1層と比べる</td><td><span class="chip c-lose">3つとも ××</span></td><td>見られ分け：見た目だけの128 0.14・0.14／見方 0.16・0.15／脳梁あり 0.13・0.15／なし 0.15・0.15。自分の体も入れると漏れが増えて下がる（混ぜる 0.08・0.05、役割 0.04・0.06）</td></tr>
+        <tr><td class="v">S17b</td><td>左右が別々に学ぶ（それぞれ自分の Q・評価の予測・つながり）。右を速く／脳梁なし（毎手片方が選ぶ）も</td><td><span class="chip c-lose">別々の効き ××</span><span class="chip c-note">右が速い 本・追試で違う指標だけ○</span><span class="chip c-lose">脳梁 ××</span></td><td>見られ分け：別々 0.10・0.15／共有見方 0.17・0.25／共有128 0.17・0.15。右が速い：漏れが少ない 本 9/10・追試 7/10、見られ分け 本 4/10・追試 9/10（両方そろわない）</td></tr>
+        <tr><td class="v">S18</td><td>片側を止めると何が壊れるか（右＝見た目ざっくり・左＝見た目細かく＋自分の体）。作りの訂正：右だけが見た目を見る形では結果が作りから決まるので、左右とも見た目を見る形にした</td><td><span class="chip c-win">右を止める方が下がる ○○</span></td><td>見られ分け：止めない 0.066・0.096／右を止める 0.048・0.067／左を止める 0.131・0.191。差の主は「左を止めると漏れが減る（P他 0.65→0.55・0.61→0.48）」方＝漏れは体を見る左にある</td></tr>
+        <tr><td class="v">S19</td><td>自分の体を感覚に入れると漏れが増えるか・なぜか（見た目だけ 対 見た目＋体、1層128）</td><td><span class="chip c-win">漏れが増える ○○</span><span class="chip c-note">見られ分けが小さい 本× 追試○</span></td><td>P他 0.50→0.64・0.50→0.57、見られ分け 0.16→0.08・0.23→0.14。漏れは空腹が上限未満のときに出る（体あり 0.69・0.61、上限のときは 0.35・0.32）</td></tr>
+        <tr><td class="v">S20</td><td>空腹ごとに漏れの出どころ（診断）</td><td><span class="chip c-win">満ち足りると Q が漏らす ○○</span><span class="chip c-lose">つながり ××</span></td><td>他の子の前で Qだけで一番を選ぶ割合：空腹 0.3 で 0.83・0.72、空腹 1.0 で 0.58・0.55。つながりだけは 0.41〜0.49 で空腹によらない</td></tr>
+        <tr><td class="v">S21</td><td>それは報酬が −空腹² だからか（−空腹に替える）</td><td><span class="chip c-note">漏れが下がる 本○ 追試×</span><span class="chip c-lose">空腹の差が縮む ××</span></td><td>P他 0.62→0.51（本 9/10）・0.55→0.48（追試 7/10）、見られ分け 0.11→0.19・0.06→0.12。Qだけの空腹 0.3 と 1.0 の差は 0.12・0.15 で残る＝見当は半分だけ</td></tr>
+        <tr><td class="v">S22</td><td>まとめの赤ちゃん（感覚256・雑音0.3／その手だけ給餌／−空腹）で最初の問い「見られ分けは育ちで出るか」に戻る</td><td><span class="chip c-win">元より大きい ○○</span><span class="chip c-lose">育ちで出る ××</span></td><td>育った後 0.28・0.26（元 0.24・0.19）。まとめは初めから 0.14・0.13 で 2000手ほどで頭打ち（3/10・5/10）。元のほうが 0.07→0.24・0.07→0.19 と育つ形（判定外・記述）</td></tr>
+        <tr><td class="v">S23</td><td>S22 で判定の外に見えた「元の頭が育つ形」を新しい種で確かめる。揺れだけでつながりを学ぶ頭（S6b のずらし型）と並べる</td><td><span class="chip c-lose">育ちで出る ×○</span><span class="chip c-win">学習の分 ○○</span><span class="chip c-lose">伸びが学習 ×○</span></td><td>元 0.078→0.172・0.075→0.242（6/10・8/10）。育った後 元 > ずらし 8/10・10/10（ずらし 0.10・0.13）。伸び 7/10・8/10。空腹だけの頭も 0.01→0.13・0.17 と育つ</td></tr>
+        <tr><td class="v">S24</td><td>育つのは Q（空腹の値打ち）の分か。獲得型−道具型 の差が育つかと、道具型も育ちで出るか</td><td><span class="chip c-lose">差が育つ ××</span><span class="chip c-win">道具型も育つ ○○</span></td><td>差 0.068→0.040・0.087→0.070（2/10・4/10）。道具型 0.002→0.125・0.004→0.090（10/10・9/10）。つながりの分は初めから、育つのは Q の分</td></tr>
+        <tr><td class="v">S25</td><td>つながりを遅い学び（LMS）に。調整の種で初めの差が減らず前提を訂正→「同点くずし」を測る（重ぇ2 対 0.0001）</td><td><span class="chip c-lose">同点くずし ××</span><span class="chip c-lose">大きさが育った後に効く ○×</span></td><td>重ぇ0.0001 は初め 0.004・−0.001（道具型と同じ）、0/10・0/10。育った後 重ぇ2 > 0.0001 は 10/10・7/10。初めの差はつながりの大きさから</td></tr>
+        <tr><td class="v">S26</td><td>つながり u を毎手記録。初めに出すぎて後で縮むか（診断）</td><td><span class="chip c-lose">出すぎ ××</span><span class="chip c-lose">見分けも縮む ××</span></td><td>u(養育者) 0.025→0.07（3500手）→0.05、0/10・1/10。u(養)−u(他) も初め > 育った後は 2/10・3/10。つながりは育つ</td></tr>
+        <tr><td class="v">S27</td><td>選ぶ時の Q の手ごとの差と、つながりの項の手ごとの差を記録（診断）</td><td><span class="chip c-win">比が下がる ○○</span><span class="chip c-win">Qの差が育つ ○○</span></td><td>比 11.7→0.52・11.1→0.55（10/10・10/10）。Q差 0.02→0.37・0.02→0.35、つながり差 0.28→0.19・0.26→0.19。Q がつながりを飲み込む</td></tr>
+        <tr><td class="v">S28</td><td>換算型：つながりを Q の物差しで学んだ一食の値打ち v食 で換算して足す（c=30 は 900番台で選んだ）</td><td><span class="chip c-lose">差が育つ ×○</span><span class="chip c-win">育ちで出る ○○</span><span class="chip c-win">元に負けない ○○</span></td><td>換算 0.092→0.261・0.106→0.254（8/10・8/10）。元 0.16・0.18 より大（10/10・10/10）。道具型との差が育つ 7/10・8/10（元は 3/10・6/10）</td></tr>
+        <tr><td class="v">S29</td><td>換算型の対照（無関係の世界）・3回目・漏れ</td><td><span class="chip c-win">無関係は小さい ○○</span><span class="chip c-lose">育ちで出る ×○</span><span class="chip c-lose">漏れが増えない ○×</span></td><td>依存 0.108→0.275・0.094→0.311、無関係 0.094→0.109・0.085→0.099（10/10・10/10）。育ち 7/10・9/10。P他 換算 0.515・0.492 対 元 0.553・0.494（8/10・4/10）</td></tr>
+        <tr><td class="v">S30</td><td>換算型（c=30）を S16 の「その手だけ給餌」の世界へ</td><td><span class="chip c-win">漏れが減る ○○</span><span class="chip c-win">見られ分けが大きい ○○</span><span class="chip c-lose">育ちで出る ××</span></td><td>P他 0.528→0.436・0.517→0.431（10/10・8/10）。見られ分け 0.366・0.374 対 0.265・0.251（10/10・10/10）。初め 0.154・0.173（4/10・6/10）</td></tr>
+        <tr><td class="v">S31</td><td>2×2（元／換算 × 持ち越す／その手だけ）を同じ種で。漏れが減るのは組み合わせか、世界だけか</td><td><span class="chip c-lose">組み合わせの効き ×○</span><span class="chip c-lose">世界だけの効き ××</span></td><td>漏れの減り 換算 0.024・0.070、元 −0.013・0.004（換算 > 元 6/10・8/10）。元で減る 4/10・5/10。換算で減る 8/10・10/10（参考）</td></tr>
+        <tr><td class="v">S32</td><td>換算型×その手だけで、7000〜8000 だけつながりを切って Q だけで選ばせる（7000手までは同じ一生）</td><td><span class="chip c-win">漏れは Q から ○○</span><span class="chip c-win">切ると P養 が下がる ○○</span></td><td>P他 0.460→0.527・0.450→0.500（切ると増える）、P養 0.794→0.692・0.791→0.701。見られ分け 0.33→0.16・0.33→0.19（どれも 10/10）</td></tr>
+        <tr><td class="v">S33</td><td>Q の入力に「この相手は大事か」（u を大きさで揃えた値）を足す（換算×その手だけ）</td><td><span class="chip c-lose">漏れが減る ××</span><span class="chip c-lose">見られ分けは負けない ××</span></td><td>P他 0.522→0.558・0.434→0.487（1/10・0/10）。見られ分け 0.29→0.28・0.35→0.31（2/10・0/10）。逆に効く</td></tr>
+        <tr><td class="v">S34</td><td>換算×その手だけで Q の学び率を 0.05→0.01（900番台で選んだ）</td><td><span class="chip c-win">漏れが減る ○○</span><span class="chip c-lose">育ちで出る ×○</span><span class="chip c-lose">飢えない ××</span></td><td>P他 0.454→0.333・0.455→0.320（10/10・9/10）。見られ分け 0.364→0.436・0.343→0.404。育ち 7/10・8/10。空腹 0.370→0.370・0.385→0.410（7/10・3/10）</td></tr>
+        <tr><td class="v">S35</td><td>2×2（元／換算 × Q 学び率 0.05／0.01）、その手だけの世界。漏れの減りに換算は要るか</td><td><span class="chip c-win">元でも減る ○○</span><span class="chip c-lose">換算で多く減る ××</span></td><td>漏れの減り 元 0.180・0.205、換算 0.141・0.168（10/10・10/10、1/10・1/10）。P他 元 0.566→0.387・0.558→0.368、換算 0.485→0.342・0.495→0.331。効いたのは癖の遅さ</td></tr>
+        <tr><td class="v">S36</td><td>元の世界（持ち越す・S4 の形）で元の獲得型の Q 学び率 0.05 対 0.01</td><td><span class="chip c-win">漏れが減る ○○</span><span class="chip c-lose">育ちで出る ○×</span><span class="chip c-lose">見られ分けが大きい ○×</span></td><td>P他 0.531→0.385・0.557→0.421（9/10・8/10）。育ち 9/10・5/10。見られ分け 0.136→0.279・0.195→0.216（8/10・7/10）。空腹 0.53→0.51・0.50→0.54（上がらない 3/10・3/10）</td></tr>
+        <tr><td class="v">S37</td><td>速く始めて遅くなる癖（0〜4000手で 0.05→0.01）。換算×その手だけ、3腕</td><td><span class="chip c-win">漏れが減る ○○</span><span class="chip c-lose">空腹が遅いより小さい ××</span><span class="chip c-lose">見られ分けは負けない ○×</span></td><td>P他 0.05:0.42・0.42、下げる:0.35・0.37、0.01:0.31・0.32。空腹 0.364/0.353/0.356・0.387/0.374/0.376（5/10・5/10）。見られ分け 10/10・6/10</td></tr>
+        <tr><td class="v">S38</td><td>遅い癖の空腹の代価を各 30世界で決着（換算×その手だけ、0.05 対 0.01）</td><td><span class="chip c-lose">飢える ××</span><span class="chip c-win">漏れが減る ○○</span></td><td>飢える 7/30・7/30（線 20）、空腹 0.390→0.373・0.394→0.384。漏れ 30/30・30/30（線 24）、P他 0.435→0.319・0.457→0.328。食べた割合 −0.004</td></tr>
+        <tr><td class="v">S39</td><td>一番の赤ちゃん（換算×その手だけ×Q 0.01）で「育ちで出るか」を各 30世界で。道具型（同じ世界・同じ学び率）も</td><td><span class="chip c-win">育ちで出る ○○</span><span class="chip c-lose">道具との差が育つ ××</span></td><td>一番 0.183→0.419・0.179→0.432（23/30・25/30）。道具 0.061→0.295・0.059→0.300。差 0.12→0.12（16/30・14/30）</td></tr>
+        <tr><td class="v">S40</td><td>一食の値打ち v食 をゆっくり覚える（時定数 1000→5000）。一番の赤ちゃん・各 30世界</td><td><span class="chip c-win">上乗せが育つ ○○</span><span class="chip c-win">大きさを保つ ○○</span></td><td>上乗せ（−道具） 5000：0.078→0.109・0.065→0.137（22/30・25/30）、1000：0.140→0.105・0.126→0.125（10/30・17/30）。見られ分け 0.119→0.435・0.115→0.423</td></tr>
+        <tr><td class="v">S41</td><td>S40 の対照：給餌が見られ方と無関係の世界でも上乗せ（換算−道具）が育つか（各 30世界、2×2）</td><td><span class="chip c-lose">無関係では小さい ××</span><span class="chip c-lose">依存で育つ ○×</span></td><td>上乗せ 依存 0.062→0.137・0.061→0.108、無関係 0.078→0.190・0.080→0.213（8/30・4/30）。無関係の道具型が −0.07・−0.09 へ沈むため。換算そのものは 無関係 0.06→0.11 対 依存 0.12→0.42。物差しの弱点</td></tr>
+        <tr><td class="v">S42</td><td>物差しを替える：同じ赤ちゃんで 0〜500／7000〜8000 だけつながりを切った一生との差＝効き（一番の赤ちゃん、v1000／5000、各 30世界）</td><td><span class="chip c-win">効きが育つ ○○</span><span class="chip c-win">育ちが 1000 より大きい ○○</span></td><td>v5000 効き 0.071→0.232・0.041→0.219（29/30・26/30）。v1000 0.140→0.239・0.113→0.252（参考 22/30・24/30）。育ち 5000>1000 28/30・22/30</td></tr>
+        <tr><td class="v">S43</td><td>S42 の物差しの対照：無関係の世界でも切って測る効きは育つか（v5000、各 30世界）</td><td><span class="chip c-lose">無関係では小さい ×○</span><span class="chip c-lose">無関係では育たない ××</span></td><td>効き 依存 0.057→0.222・0.052→0.237、無関係 0.068→0.203・0.068→0.208（19/30・20/30、0/30・1/30）。見られ分け 無関係 0.05→0.11</td></tr>
+        <tr><td class="v">S44</td><td>謎の診断：道具型・無関係の世界で我慢の代価 0.01 対 0（各 30世界）</td><td><span class="chip c-win">負が消える ○○</span><span class="chip c-lose">ほぼ0以上 ○×</span></td><td>見られ分け −0.078→0.030・−0.081→−0.007（29/30・28/30）。−0.02 以上 24/30・17/30。P養 0.08→0.27（代価で養育者の前だけ避けていた）</td></tr>
+        <tr><td class="v">S45</td><td>S43 を我慢の代価 0 でやり直し（切って測る効き、依存 vs 無関係、各 30世界）</td><td><span class="chip c-lose">無関係では小さい ××</span><span class="chip c-lose">無関係では育たない ××</span><span class="chip c-win">依存で育つ ○○</span></td><td>効き 依存 0.011→0.084・0.028→0.101、無関係 0.068→0.131・0.067→0.132（7/30・12/30、4/30・3/30、24/30・25/30）。見られ分け 依存 0.42、無関係 0.13</td></tr>
+        <tr><td class="v">S46</td><td>無関係・代価0 で u・v食・ê を記録（診断、各 30世界）</td><td><span class="chip c-lose">u養が正 ××</span><span class="chip c-lose">u養が他より大 ××</span></td><td>u養が正 7/30・4/30、u養>u他 17/30・17/30。つながりの項 ≈−0.01。事後：Q が平らで選びの 65% をつながりが決める（1世界）＝同点くずし</td></tr>
+        <tr><td class="v">S47</td><td>本物 vs ずらし（つながりにだけ隣の子の1手前の食べ物）。一番の赤ちゃん・v5000・各 30世界</td><td><span class="chip c-win">育った後 本物>ずらし ○○</span><span class="chip c-win">育ち 本物>ずらし ○○</span></td><td>本物 0.116→0.429・0.114→0.426、ずらし 0.057→0.142・0.054→0.136（四つとも 30/30）。ずらしは空腹だけの頭より低い＝揺れのつながりは邪魔もする</td></tr>
+        <tr><td class="v">S48</td><td>同じ種で本物／ずらし／道具型を並べ、得と邪魔を分ける（各 30世界）</td><td><span class="chip c-win">得がある ○○</span><span class="chip c-win">邪魔がある ○○</span><span class="chip c-win">育ちの得 ○○</span></td><td>育った後 本物 0.419・0.435、道具 0.323・0.311、ずらし 0.133・0.123（29/30・30/30、30/30・29/30、27/30・27/30）。初め 0.12・0.07・0.06</td></tr>
+        <tr><td class="v">S49</td><td>大事な相手が入れ替わる：8000手から食べ物は「見ている仲間と同じ手」で増える（寿命16000・各 30世界）</td><td><span class="chip c-win">養育者への喜ばせが減る ○○</span><span class="chip c-lose">仲間に合わせる ××（測れていない）</span></td><td>P養 0.807→0.486・0.792→0.459。合わせ 0.30→0.27。食べた割合 0.070→0.028。相手の直前の手が入力に無い＝前提を訂正</td></tr>
+        <tr><td class="v">S50</td><td>S49 をやり直し：感覚の入力に「見ている他の子の直前の手」を足す（12次元・各 30世界）</td><td><span class="chip c-win">喜ばせが減る ○○</span><span class="chip c-win">仲間に合わせる ○○</span><span class="chip c-win">食べ物を取り戻す ○○</span></td><td>P養 0.831→0.510・0.823→0.506。合わせ 0.350→0.525・0.354→0.525。食べた割合 0.034→0.044（替えない 0.071）。すべて 30/30</td></tr>
+        <tr><td class="v">S51</td><td>入れ替わりの対照：S50 の世界で本物／ずらし／道具型（各 30世界）</td><td><span class="chip c-win">合わせ 本物>道具 ○○</span><span class="chip c-win">合わせ 本物>ずらし ○○</span><span class="chip c-win">食べ物 本物>道具 ○○</span></td><td>合わせ 本物 0.519・0.522、ずらし 0.342・0.349、道具 0.288・0.277。食べた 0.044・0.043 対 0.029・0.028。P養 道具 0.82→0.11、本物 0.79→0.52</td></tr>
+        <tr><td class="v">S52</td><td>残る喜ばせ（愛着の残り）はつながりの忘れの遅さからか：忘却 0.9999 対 0.999（各 30世界）</td><td><span class="chip c-win">残りが減る ○○</span><span class="chip c-lose">合わせは損なわない ××</span><span class="chip c-lose">育ちは保つ ××</span></td><td>P養 前→後 0.9999：0.79→0.51、0.999：0.65→0.40。合わせ 0.53→0.50。見られ分け（前） 0.48→0.35（1/30・3/30、0/30・3/30）。全部が弱まるだけ</td></tr>
+        <tr><td class="v">S53</td><td>残る喜ばせの出どころ：15000〜16000 だけつながりを切る＋養育者への u を記録（各 30世界）</td><td><span class="chip c-win">切ると消える ○○</span><span class="chip c-win">まだ覚えている ○○</span><span class="chip c-win">忘れている途中 ○○</span></td><td>P養 0.503→0.260・0.498→0.253（20/30・23/30）。u養 0.078→0.012・0.079→0.013（正 30/30・30/30、減る 30/30・30/30）</td></tr>
+        <tr><td class="v">S54</td><td>戻ってきた養育者：0〜8000 養育者、8000〜16000 仲間、16000〜24000 養育者（各 30世界）</td><td><span class="chip c-win">初めより高く戻る ○○</span><span class="chip c-lose">学び直しが速い ××</span></td><td>最初の500手 生 0.121・0.125、戻 0.198・0.201（28/30・28/30）。0.3 超えが早い 16/30・18/30（中央値 区間 4→3・3→2）。頭打ち 生 0.46・0.48、戻 0.38・0.41</td></tr>
+        <tr><td class="v">S55</td><td>「尾を引く」の対照：戻る vs ずっと養育者（寿命24000・各 30世界）</td><td><span class="chip c-win">仲間の時期が尾を引く ○○</span><span class="chip c-win">長生きだけでは落ちない ○○</span></td><td>23000〜24000 の見られ分け 戻る 0.384・0.386、ずっと 0.482・0.480（30/30・30/30）。ずっとは 7000〜8000 の 0.46 を保つ（30/30・29/30）。P養 は同じ 0.86・0.85、漏れが大きい</td></tr>
+        <tr><td class="v">S56</td><td>漏れの増えの出どころ：23000〜24000 だけつながりを切る＋他の子への u を記録（各 30世界）</td><td><span class="chip c-win">仲間へのつながりが残る ○○</span><span class="chip c-lose">切ると漏れの差が縮む ××</span></td><td>u他 ずっと −0.016・−0.017、戻る +0.002・+0.002（30/30・30/30）。P他 切らない 0.37→0.47、切る 0.46→0.55（16/30・18/30）。癖の側にも増えがある</td></tr>
+        <tr><td class="v">S57</td><td>仲間に合わせて食べた手は養育者の一番好きな手か（記録・各 30世界）</td><td><span class="chip c-lose">一番の手が多い ××</span><span class="chip c-lose">だんだん散る ××</span></td><td>割合 8000〜10000：0.381・0.390（>0.4 は 9/30・12/30、偶然 0.25）、14000〜16000：0.422・0.432（散る 7/30・7/30）。逆に集まる</td></tr>
+        <tr><td class="v">S58</td><td>介入：仲間の時期、一番の手で合わせても食べ物なし（戻る除く）vs 戻る（各 30世界）</td><td><span class="chip c-win">漏れが減る ○○</span><span class="chip c-win">見られ分けが大きい ○○</span></td><td>23000〜24000 P他 0.473→0.386・0.452→0.414（27/30・27/30）、見られ分け 0.372→0.473・0.396→0.462（30/30・29/30）。仲間期の食べた 0.040→0.029</td></tr>
+        <tr><td class="v">S59</td><td>新しい章：大事な相手が二人（養育者＝一番の手、親友 i+1＝好みの2番目の手）。本物 vs 道具型、各 30世界</td><td><span class="chip c-win">親友の前で親友の手 ○○</span><span class="chip c-win">養育者の前で一番 ○○</span><span class="chip c-win">本物>道具 ○○</span></td><td>本物：親友の手 親友 0.543・0.541／他 0.204・0.207、一番 養育者 0.814・0.780／親友 0.162・0.158。道具：親友の手 0.156／0.152、一番 親友の前 0.566。すべて 30/30</td></tr>
+        <tr><td class="v">S60</td><td>S59 の対照：本物 vs ずらし（評価 ê は使う、つながりは隣の子の食べ物）、各 30世界</td><td><span class="chip c-win">親友の分け ○○</span><span class="chip c-win">養育者と親友の分け ○○</span></td><td>親友の手 親友/他：本物 0.536/0.212、ずらし 0.352/0.231。一番 養育者/親友：本物 0.785/0.151、ずらし 0.397/0.220。すべて 30/30</td></tr>
+        <tr><td class="v">S61</td><td>親友の好みが 8000手から変わる（2番目→3番目の手、寿命12000・各 30世界）</td><td><span class="chip c-lose">新しい手に替える ××</span><span class="chip c-win">養育者のぶんは壊れない ○○</span><span class="chip c-win">親友の前でだけ ○○</span></td><td>11000〜12000 親友の前：新 0.304・0.310、旧 0.338・0.327（12/30・10/30）。替えないなら旧 0.56・新 0.12。養育者の分け 30/30・30/30、新の分け 29/30・30/30</td></tr>
+        <tr><td class="v">S62</td><td>親友に会う頻度 1/7（手の 8%）対 0.5（26%）で好みの書き換えの速さ（各 30世界）</td><td><span class="chip c-win">頻度0.5で新が上 ○○</span><span class="chip c-win">頻度で速い ○○</span></td><td>親友の前 新/旧：1/7 0.314/0.337・0.333/0.321、0.5 0.453/0.278・0.427/0.282（28/30・28/30、27/30・27/30）。養育者の前の一番 0.81〜0.82 は変わらず</td></tr>
+        <tr><td class="v">S63</td><td>一般化：S59 を感覚 64・雑音 0.6（元の S2d の設定）で（各 30世界）</td><td><span class="chip c-win">親友の前で親友の手 ○○</span><span class="chip c-win">養育者の前で一番 ○○</span><span class="chip c-win">本物>道具 ○○</span></td><td>本物：親友の手 0.522・0.509/0.192・0.184、一番 0.835・0.840/0.214・0.198。道具：親友の手 0.147/0.146。すべて 30/30。256/0.3 とほぼ同じ大きさ</td></tr>
+        <tr><td class="v">S64</td><td>本人の最初の案に戻る：7000〜7500 養育者が来ないと、戻った直後に喜ばせが増えるか（一番の赤ちゃん・各 30世界）</td><td><span class="chip c-lose">戻って喜ばせが増える ××</span><span class="chip c-win">空腹が高い ○○</span></td><td>7500〜7700 の P養 なし 0.753・0.737、欠乏 0.705・0.708（8/30・4/30）。空腹 0.42→0.71・0.38→0.70（30/30・30/30）。欠乏前は同じ 0.74・0.73</td></tr>
+        <tr><td class="v">S65</td><td>見られ方のホメオスタシス（満ち足り s、不足で苦しい、不足を Q の入力に）を一番の赤ちゃんに</td><td><span class="chip c-lose">選びで線を越える組なし ×（本計測せず）</span></td><td>調整の種：戻り差 −0.029〜−0.036（無し −0.012）、増えた数 0〜3/10。s は欠乏で 0.31→−0.05。不足を経験していないので学ぶ材料が無い疑い</td></tr>
+        <tr><td class="v">S66</td><td>小さな別れの練習（1000〜6000 に 200手ずつ）× ホメオスタシスあり／なし（各 30世界）</td><td><span class="chip c-lose">戻って増える ××</span><span class="chip c-lose">ホメオスタシスの分 ××</span><span class="chip c-lose">練習の分 ○×</span></td><td>増え（中央値）あり・練習あり −0.029・−0.031、あり・練習なし −0.034・−0.031、なし・練習あり −0.025・−0.022（2/30・2/30、12/30・13/30、20/30・16/30）</td></tr>
+        <tr><td class="v">S67</td><td>欠乏がその場で欲求を強める：つながりの項に (1 + g·不足)。g を調整の種で選ぶ</td><td><span class="chip c-lose">選びで線を越える組なし ×（本計測せず）</span></td><td>g=0/1/3/10 の戻り差 −0.034/−0.010/−0.010/−0.010、増えた数 1/3/3/5（10中）。見られ分けは保つ</td></tr>
+        <tr><td class="v">S68</td><td>欠乏の後に喜ばせを下げる力の正体（記録・7500〜7700・各 30世界）</td><td><span class="chip c-win">癖が一番の手を下げた ○○</span><span class="chip c-win">一食の値打ちが上がった ○○</span><span class="chip c-lose">つながりが忘れた ××</span></td><td>Q差 −0.004→−0.089・−0.014→−0.096、v食 0.176→0.237・0.179→0.235、つながり項の差 0.44→0.60・0.44→0.61、u 0.077→0.079（5/30・8/30）。空腹 0.36→0.51</td></tr>
+        <tr><td class="v">S69</td><td>我慢の代価 0 で欠乏の試し（見立ての確かめ・各 30世界）</td><td><span class="chip c-lose">戻って喜ばせが増える ××</span><span class="chip c-lose">癖が下げない ××</span></td><td>P養 0.792→0.713・0.802→0.707（0/30・0/30）。Q差 0.034→−0.059・0.038→−0.066（0/30・0/30）。つながり項の差 0.14→0.32、v食 0.06→0.13</td></tr>
+        <tr><td class="v">S70</td><td>欠乏中（7000〜7500）だけ癖（Q）の学びを止める（各 30世界）</td><td><span class="chip c-lose">戻って増える ××</span><span class="chip c-lose">癖が下げない ××</span></td><td>止める：P養 なし 0.751・0.762、欠乏 0.738・0.750（5/30・4/30）。Q差 −0.033→−0.083・0.020→−0.050（0/30・0/30）。止めないと P養 0.717・0.728</td></tr>
+        <tr><td class="v">S71</td><td>癖を止める窓を 7000〜7700（欠乏＋戻った後 200手）に（各 30世界）</td><td><span class="chip c-win">止めると戻って増える ○○</span><span class="chip c-win">つながり項の差が大きい ○○</span></td><td>止める：P養 なし 0.766・0.735 → 欠乏 0.782・0.753（27/30・26/30）。つながり差 0.43→0.62・0.44→0.61（30/30・30/30）。止めないと増えるのは 8/30・6/30</td></tr>
+        <tr><td class="v">S72</td><td>空腹 h を癖（Q）の入力に足す（止めずに隠しを解く・各 30世界）</td><td><span class="chip c-lose">戻って増える ××</span><span class="chip c-lose">増えがありで大 ××</span><span class="chip c-win">普段を壊さない ○○</span></td><td>増え あり −0.039・−0.029、なし −0.045・−0.021（5/30・5/30、16/30・10/30）。見られ分け 0.41 対 0.42（30/30・26/30）</td></tr>
+        <tr><td class="v">S73</td><td>癖を V（状態の値打ち・共有）＋A（手ごと）に分ける。調整の種で学び率を選ぶ</td><td><span class="chip c-lose">選びで悪化 ×（本計測せず）</span></td><td>V/A=0.05/0.01・0.02/0.01・0.1/0.01 の戻り差 −0.100・−0.086・−0.132（元 −0.012）、増えた数 0/10</td></tr>
+        <tr><td class="v">S74</td><td>一般化：S48（本物／ずらし／道具型）を感覚 64・雑音 0.6 で（各 30世界）</td><td><span class="chip c-win">得がある ○○</span><span class="chip c-win">邪魔がある ○○</span><span class="chip c-win">育ちの得 ○○</span></td><td>育った後 本物 0.408・0.393、道具 0.257・0.226、ずらし 0.097・0.100（30/30・30/30、29/30・30/30、30/30・30/30）。初め 0.10・0.05・0.04</td></tr>
+        <tr><td class="v">S75</td><td>一般化：S51（親から仲間へ・本物 vs 道具型）を感覚 64・雑音 0.6 で（各 30世界）</td><td><span class="chip c-win">合わせ 本物>道具 ○○</span><span class="chip c-win">食べ物 本物>道具 ○○</span><span class="chip c-win">入れ替わりで合わせ増 ○○</span></td><td>合わせ 本物 0.671・0.675、道具 0.308・0.317（28/30・29/30）。食べた 0.052・0.053 対 0.030（28/30・29/30）。本物の合わせ 0.35→0.67（30/30・30/30）</td></tr>
+        <tr><td class="v">S76</td><td>新しい章「まねして学ぶ」：1000手ごとに当たりの手が替わる世界で、見ている子がさっき食べたかが見える／見えない（各 30世界）</td><td><span class="chip c-lose">切り替えで早く乗り換える ××</span><span class="chip c-win">食べた子をまねる ○○</span></td><td>まね 0.405→0.461・0.401→0.468（30/30・30/30）。切り替え直後 200手の当たりの割合 0.242→0.247・0.240→0.240（18/30・17/30、偶然 0.25）</td></tr>
+        <tr><td class="v">S77</td><td>乗り換えの窓を 500手に、癖の学び率 0.01／0.05 × 見える／見えない（各 30世界）</td><td><span class="chip c-lose">0.01 で見えると速い ××</span><span class="chip c-lose">0.05 で見えると速い ××</span><span class="chip c-win">0.05 で乗り換えが起きる ○○</span></td><td>乗り換え（0〜500）見えない/見える：0.01 0.274/0.274・0.267/0.271、0.05 0.315/0.310・0.309/0.297（15/30・16/30、18/30・12/30、29/30・30/30）</td></tr>
+        <tr><td class="v">S78</td><td>お手本の子（赤ちゃん 0 がいつも当たりの手）を入れて、見える／見えない（各 30世界）</td><td><span class="chip c-lose">見えると速い ××</span><span class="chip c-lose">お手本をまねる ××</span><span class="chip c-win">乗り換えが起きる ○○</span></td><td>乗り換え 0.309/0.311・0.302/0.308（14/30・15/30）。お手本のまね 0.471/0.470・0.479/0.492（13/30・19/30）。>0.25 30/30・29/30</td></tr>
+        <tr><td class="v">S79</td><td>お手本あり／なし（どちらも食べたか見える・各 30世界）</td><td><span class="chip c-win">お手本で乗り換えが速い ○○</span><span class="chip c-win">お手本が見る時だけ当たり増 ○○</span></td><td>乗り換え 0.298→0.317・0.312→0.315（20/30・21/30）。当たり お手本が見る 0.478・0.488 対 他 0.333・0.338（30/30・30/30）。お手本なしでは 15/30・17/30</td></tr>
+        <tr><td class="v">S80</td><td>お手本に会う頻度 1/7／0.5／お手本なしで、お手本がいない時もまねが広がるか（各 30世界）</td><td><span class="chip c-lose">まねが広がる ××</span><span class="chip c-lose">よく見るほど広がる ××</span></td><td>お手本以外が見る時の当たり 1/7：0.281・0.281、0.5：0.277・0.284、なし：0.278・0.281（14/30・15/30、16/30・16/30）</td></tr>
+        <tr><td class="v">S81</td><td>新しい章「2層」：速い層 F（手ごとに直後に食べられたかのすばやい平均、kF=3）を足す。一層／二層 × お手本あり／なし（各 30世界）</td><td><span class="chip c-lose">まねが知識になる ××</span><span class="chip c-lose">二層でお手本の効き大 ××</span><span class="chip c-win">二層で乗り換え速い ○○</span></td><td>他が見る時の当たり 二層 なし/あり 0.332/0.324・0.340/0.333、一層 0.278/0.275・0.282/0.296。乗り換え 一層 0.30 → 二層 0.38（30/30・29/30）</td></tr>
+        <tr><td class="v">S82</td><td>同じ速い層（kF=3）で欠乏の試し（S64 の作り・各 30世界）</td><td><span class="chip c-lose">二層で戻って増える ××</span><span class="chip c-lose">増えが二層で大 ××</span><span class="chip c-lose">普段を壊さない ○×</span></td><td>増え 一層 −0.029・−0.034、二層 −0.022・−0.026（5/30・6/30、16/30・14/30）。見られ分け 0.427→0.379・0.412→0.393（21/30・18/30）</td></tr>
+        <tr><td class="v">S83</td><td>速い層を出来事の記憶（DND に近い、kD=10・容量100）に。一層／記憶 × お手本あり／なし（各 30世界）</td><td><span class="chip c-lose">まねが知識になる ××</span><span class="chip c-lose">記憶でお手本の効き大 ××</span><span class="chip c-win">乗り換えが速い ○○</span></td><td>他が見る時の当たり 記憶 なし/あり 0.352/0.350・0.359/0.356（14/30・10/30、11/30・12/30）。乗り換え 0.31→0.40・0.41（30/30・30/30）。お手本が見る時の当たりは記憶で大（30/30・29/30）</td></tr>
+        <tr><td class="v">S84</td><td>出来事の記憶 × お手本によく会う（24%）あり／なし（各 30世界）</td><td><span class="chip c-lose">まねが知識になる ×○</span><span class="chip c-lose">記憶で効き大 ×○</span></td><td>他が見る時の当たり 記憶 なし/あり 0.344/0.341・0.342/0.349（12/30・23/30）、一層 0.273/0.280・0.282/0.283。お手本が見る時 記憶 0.62〜0.63</td></tr>
+        <tr><td class="v">S85</td><td>相手に関係ない速い層（S81）× お手本によく会う（24%）あり／なし（各 30世界）</td><td><span class="chip c-lose">まねが知識になる ××</span><span class="chip c-lose">速い層で効き大 ××</span></td><td>他が見る時の当たり 速い層 なし/あり 0.328/0.327・0.325/0.322（13/30・14/30）。お手本が見る時 0.58〜0.59</td></tr>
+        <tr><td class="v">S86</td><td>手を 8つに（偶然 0.125）。一層／速い層 × お手本あり／なし（お手本に会う 24%・各 30世界）</td><td><span class="chip c-win">一層でまねが知識に ○○</span><span class="chip c-win">速い層でまねが知識に ○○</span><span class="chip c-win">お手本で乗り換え速い ○○</span></td><td>他が見る時の当たり 一層 0.161→0.172・0.162→0.177（23/30・23/30）、速い層 0.210→0.228・0.222→0.234（20/30・21/30）。乗り換え 一層 0.180→0.237・0.182→0.257（28/30・29/30）</td></tr>
+        <tr><td class="v">S87</td><td>同じ種で手4／手8 × お手本あり／なし（一層・各 30世界）</td><td><span class="chip c-lose">知識の効きは手8で大 ×○</span><span class="chip c-lose">乗り換えの得は手8で大 ×○</span></td><td>他が見る時 手4 0.275→0.282・0.281→0.279、手8 0.165→0.180・0.162→0.169（18/30・20/30）。乗り換え 手4 +0.05・+0.04、手8 +0.07・+0.05（19/30・21/30）。手8 単独で知識に 23/30・20/30</td></tr>
+        <tr><td class="v">S88</td><td>同じ種で手4／手16 × お手本あり／なし（一層・各 30世界）</td><td><span class="chip c-win">知識の効きは手16で大 ○○</span><span class="chip c-win">乗り換えの得は手16で大 ○○</span></td><td>他が見る時 手4 0.277→0.277・0.288→0.287、手16 0.089→0.113・0.091→0.118（24/30・21/30）。乗り換え 手4 +0.05・+0.04、手16 0.108→0.197・0.103→0.196（26/30・26/30）。手16 単独で知識に 28/30・25/30</td></tr>
+        <tr><td class="v">S89</td><td>誰をまねるか：お手本（いつも当たり）とでたらめな子、食べたか見える／見えない（手16・各 30世界）</td><td><span class="chip c-win">信頼できるほうをまねる ○○</span><span class="chip c-lose">見えると選び分けが大 ××</span></td><td>写す割合 お手本 0.406・0.414、でたらめ 0.290・0.292、他の子 0.31（30/30・30/30）。見えない でも お手本 0.427・0.417 対 0.288・0.287（30/30・30/30）。見える>見えない 9/30・9/30</td></tr>
+        <tr><td class="v">S90</td><td>信頼の入れ替わり：4000手でお手本とでたらめな子の役を入れ替える（手16・各 30世界）</td><td><span class="chip c-win">新しいお手本を多く写す ○○</span><span class="chip c-win">写す相手が逆転 ○○</span></td><td>後（7000〜8000）新しいお手本 0.451・0.424、元のお手本 0.320・0.317（28/30・28/30）。替えないと 0.47・0.44 対 0.29（逆転 30/30・30/30）</td></tr>
+        <tr><td class="v">S91</td><td>一般化：S90 を感覚 64・雑音 0.6 で（各 30世界）</td><td><span class="chip c-win">新しいお手本を多く写す ○○</span><span class="chip c-win">写す相手が逆転 ○○</span></td><td>後 新しいお手本 0.475・0.501、元 0.340・0.392（25/30・25/30）。逆転 30/30・30/30</td></tr>
+        <tr><td class="v">S92</td><td>文化の伝わり：当たり固定・お手本は 0〜4000 だけ、4000 で新入り（手16・各 30世界）</td><td><span class="chip c-lose">新入りが早く覚える ××</span><span class="chip c-lose">最初の 1000手 ××</span></td><td>新入り 最初500 0.084/0.084・0.092/0.089（13/30・13/30）。仲間 3500〜4000 なし 0.375・0.435、あり 0.403・0.488＝お手本なしでも仲間が自分で覚える（比べになっていない）</td></tr>
+        <tr><td class="v">S93</td><td>文化の伝わり（直接）：知っている仲間の中に新入り 1人／全員が生まれたて（当たり固定・手16・各 30世界）</td><td><span class="chip c-win">知る仲間の中で早く覚える ○○</span><span class="chip c-win">最初の 1000手でも ○○</span></td><td>新入り 最初500 0.093・0.090 対 0.066・0.064（30/30・29/30）、最初1000 0.105・0.100 対 0.067・0.070（30/30・25/30）。仲間 4000〜5000 0.47・0.48 対 0.08</td></tr>
+        <tr><td class="v">S94</td><td>伝わる道を分ける：両方／手を見せない／仲間は褒めない（各 30世界）</td><td><span class="chip c-lose">見えないと減る ××</span><span class="chip c-win">褒めないと減る ○○</span></td><td>伝わり 両方 0.033・0.020、見せない 0.018・0.014（19/30・17/30）、褒めない 0.000・−0.001（26/30・23/30）。見せないでも伝わる 27/30・27/30、褒めないでは 14/30・13/30</td></tr>
+        <tr><td class="v">S95</td><td>意味のないしきたり：4000 から仲間が食べ物の出ない決まった手／でたらめ × 褒める／褒めない（各 30世界）</td><td><span class="chip c-win">しきたりが伝わる ○○</span><span class="chip c-win">褒めないと伝わらない ○○</span></td><td>新入りのしきたりの手 褒める：でたらめ 0.056・0.059 → 決まった手 0.096・0.101（30/30・29/30）。褒めない：0.049→0.055・0.056→0.057（28/30・29/30）。新入りの当たり 褒める 0.07 対 褒めない 0.11〜0.13</td></tr>
+        <tr><td class="v">S96</td><td>同調の損と得：仲間がでたらめ／いつも当たり × 褒める／褒めない（各 30世界）</td><td><span class="chip c-lose">でたらめなら承認は損 ××</span><span class="chip c-win">当たりなら承認は得 ○○</span></td><td>新入りの当たり でたらめ 褒める/褒めない 0.077/0.075・0.149/0.090（13/30・9/30）、当たり 0.211/0.071・0.171/0.077（28/30・23/30）</td></tr>
+        <tr><td class="v">S97</td><td>手 4／16 で欠乏の試し（S64 の作り・各 30世界）</td><td><span class="chip c-lose">手16で戻って増える ××</span><span class="chip c-lose">増えが手16で大 ××</span></td><td>増え 手4 −0.028・−0.023、手16 −0.023・−0.041（8/30・4/30、14/30・12/30）。見られ分け 手16 0.55</td></tr>
+        <tr><td class="v">S98</td><td>しきたりの代替わり（2000〜強いる・4000〜500手ごとに1人ずつ生まれたてへ・各 30世界）</td><td><span class="chip c-lose">代替わり後も残る ××</span><span class="chip c-lose">褒めないと残らない ××</span></td><td>全員のしきたり 決まった手 0.038・0.043／でたらめ 0.038・0.036（16/30・18/30、17/30・18/30）。最初の新入り 0.09 対 0.06</td></tr>
+        <tr><td class="v">S99</td><td>写す頭（同／違の予測・kM=2）で代替わり（S98 の作り）</td><td><span class="chip c-lose">写す頭で残る ××</span><span class="chip c-lose">写す頭のほうが残る ××</span></td><td>全員のしきたり kM2 0.046・0.045／でたらめ 0.038・0.035（17/30・16/30、18/30・16/30）。当たり 0.39。調整：新入り仲間前 0.154→0.744</td></tr>
+        <tr><td class="v">S100</td><td>多数に合わせる頭（見た手の頻度の一番・kM=5）で代替わり、損／得の2世界（8腕・各 30世界）</td><td><span class="chip c-win">損でも多数なら残る ○○</span><span class="chip c-win">多数のほうが残る ○○</span><span class="chip c-win">得でも残る ○○</span><span class="chip c-win">得でも多数のほうが ○○</span></td><td>しきたり 損 0.477・0.479／得 0.507・0.506（でたらめ 0.02〜0.03、写す 0.04〜0.06）。29/30 以上が7つ、28/30 が1つ</td></tr>
+        <tr><td class="v">S101</td><td>多数に合わせる代価（当たりが 1000手ごとに替わる世界・換算／写す／多数・各 30世界）</td><td><span class="chip c-win">多数は写すより食べない ○○</span><span class="chip c-win">多数は換算より食べない ○○</span><span class="chip c-lose">切替直後に遅れる ××</span></td><td>食べ 多数 0.0275・0.0246／写す 0.034・0.0355／換算 0.0354・0.0369（25/30・27/30 ×2）。切替直後の新しい当たり 15/30・19/30</td></tr>
+        <tr><td class="v">S102</td><td>S100 を 64感覚・雑音0.6 で（8腕・各 30世界）</td><td><span class="chip c-win">損で残る ○○</span><span class="chip c-win">多数のほうが ○○</span><span class="chip c-win">得で残る ○○</span><span class="chip c-win">多数のほうが ○○</span></td><td>しきたり 損 0.523・0.511／得 0.549・0.525（でたらめ 0.02〜0.03、写す 0.05〜0.08）。26/30 以上</td></tr>
+        <tr><td class="v">S103</td><td>同調者の人数 0／2／4／8（残りは写す頭）・損の世界・代替わり（8腕・各 30世界）</td><td><span class="chip c-win">半分で残る ○○</span><span class="chip c-win">2人では残らない ○○</span><span class="chip c-lose">混ざると同調者は損 ××</span></td><td>しきたり m0 0.036・m2 0.019・m4 0.18/0.12・m8 0.47（20/30・21/30）。m4 の食べ 同調者 0.074・0.079 対 写す子 0.058・0.054（6/30・6/30）</td></tr>
+        <tr><td class="v">S104</td><td>同調は継がれて増えるか（食べ物の取り分で子の頭・突然1割・中立が対照・寿命20000・固定／流行り）</td><td><span class="chip c-lose">固定で増える ××</span><span class="chip c-lose">流行りで減る ××</span></td><td>同調者の数 固定 選び 4.36・4.69／中立 4.28・3.91（15/30・16/30）、流行り 選び 3.46・3.19／中立 4.28・3.91（15/30・18/30）。向きは合うが漂いに負ける</td></tr>
+        <tr><td class="v">S105</td><td>S104 を一生 60000手で（代替わり192回）</td><td><span class="chip c-win">固定で増える ○○</span><span class="chip c-lose">流行りで減る ×○</span></td><td>同調者 固定 選び 5.3・4.63／中立 3.73・4.18（25/30・20/30）、流行り 選び 3.5・3.27／中立 3.73・4.18（18/30・22/30）</td></tr>
+        <tr><td class="v">S106</td><td>当たりの替わる間隔 固定／4000／1000／250 で継がれる同調者の数（寿命60000）</td><td><span class="chip c-win">固定 > 250 ○○</span><span class="chip c-lose">4000 > 250 ××</span></td><td>同調者 5.11・4.01・3.65・3.33／4.69・4.04・3.82・3.45（27/30・24/30、19/30・17/30）</td></tr>
+        <tr><td class="v">S107</td><td>頭が継がれる集団（全員同調者で始める・突然1割・当たり固定・寿命60000）に損なしきたり</td><td><span class="chip c-lose">しきたりで同調者が減る ×○</span><span class="chip c-lose">中立のほうが残る ×○</span></td><td>同調者 選び 決まった手 4.41・4.5／でたらめ 4.83・4.82（14/30・20/30）。しきたり 4千〜1万 0.35〜0.41 → 5万〜 0.035〜0.046（19/30・20/30）</td></tr>
+        <tr><td class="v">S109</td><td>新章 共同注意：視線を入力に・養育者の視線の手で食べ物（本物／ずらし／見えない・手4・各 30世界）</td><td><span class="chip c-win">育つ ○○</span><span class="chip c-win">養育者だけ ○○</span><span class="chip c-win">ずらしより ○○</span><span class="chip c-win">見えると食べる ○○</span></td><td>養育者の視線を追う 0.294→0.474・0.301→0.472、仲間 0.245、ずらし 0.25、見えない 0.25。食べ 0.044 対 0.028。全部 30/30（作りから出やすい）</td></tr>
+        <tr><td class="v">S110</td><td>視線追いの転移：前半 本物／ずらし → 4000 から仲間の視線の手で食べ物（手4・各 30世界）</td><td><span class="chip c-lose">仲間へ移る ××</span><span class="chip c-win">邪魔になる ○○</span><span class="chip c-win">養育者を追い続ける ○○</span></td><td>切替後1000手 仲間の視線 0.244 対 0.26・0.256（3/30・5/30、25/30・25/30）。養育者の視線 0.43 対 0.25（30/30）。終わりでも 0.27 対 0.28</td></tr>
+        <tr><td class="v">S111</td><td>視線を感覚の層に通さず直に足す頭（調整の段）</td><td><span class="chip c-lose">転移なし→本計測せず</span></td><td>切替後 仲間の視線 0.247 対 0.253。仲間の前は直前の手に 0.37 そろうが、褒めなくしても視線は 0.24〜0.26＝仲間の視線は 4000手で育たない（理由は未確認）</td></tr>
+        <tr><td class="v">S112</td><td>視線追いの出どころ：7000〜8000 だけ選びを そのまま／Qだけ／つながりだけ（S109 の作り・各 30世界）</td><td><span class="chip c-lose">癖から ××</span><span class="chip c-lose">Qだけで保つ ××</span><span class="chip c-lose">つながりだけは偶然 ××</span></td><td>全部 0/30・0/30 で逆向き。窓の養育者の視線 そのまま 0.473・0.464／Qだけ 0.228・0.24／つながりだけ 0.434・0.437＝視線追いはつながりの項から</td></tr>
+        <tr><td class="v">S113</td><td>つながりの項の中身を記録（S109 の作り・7000〜8000・各 30世界）</td><td><span class="chip c-lose">評価の予測が上ぶれ ××</span><span class="chip c-lose">u が正 ××</span><span class="chip c-win">u·ê が視線の手を推す ○○</span></td><td>上乗せ 0.040・0.040（30/30）。ê上ぶれ 視線 −0.005 対 他 −0.006（16・17）。u 養育者 −0.004・−0.003（1・10）、仲間 −0.03</td></tr>
+        <tr><td class="v">S114</td><td>u の向きと視線の手の好み（S113 の記録・各 30世界）</td><td><span class="chip c-win">u が好みと組む ○○</span><span class="chip c-win">端の手ほど追う ○○</span></td><td>相関 0.723・0.71（30/30）。端の手を追う 0.813・0.809／真ん中 0.132・0.139（30/30）＝視線ではなく好みを読んでいる</td></tr>
+        <tr><td class="v">S115</td><td>Q が視線を覚えない理由（調整の種の診断）</td><td><span class="chip c-lose">歩幅の見当 ×</span></td><td>持ち上がり Qだけ −0.07〜+0.04（学び率20倍・直でも）。一生Qだけ +0.01〜+0.03。食べたこと自体を報酬に足すと k=1 で +0.08 と少し育つ</td></tr>
+        <tr><td class="v">S116</td><td>食べの予測 f̂[a]（手ごとの RLS）を足した頭・kf0／kf3／kf3ずらし（S109 の世界・各 30世界）</td><td><span class="chip c-win">真ん中の手も追う ○○</span><span class="chip c-win">育つ ○○</span><span class="chip c-win">ずらしでは追わない ○○</span></td><td>持ち上がり 真ん中 kf3 0.274→0.796・0.265→0.79／kf0 0.053・0.065／ずらし 0.00（全部 30/30）。端 0.81。仲間の視線は 0.01。φ から視線は 100% 読める</td></tr>
+        <tr><td class="v">S117</td><td>食べ予測の頭で転移のやり直し：入力 混ぜる／直 × 前半 本物／ずらし（各 30世界）</td><td><span class="chip c-win">直なら仲間へ移る ○○</span><span class="chip c-win">直のほうが移る ○○</span><span class="chip c-win">食べ物の出ない仲間も追う ○○</span></td><td>切替後 仲間 直 本物 0.239・0.238／ずらし 0.017・0.013、混ぜる 0.038・0.03（全部 30/30）。切替前 仲間 0.27。終わり 混ぜる ずらし 0.20 対 直 ずらし 0.08</td></tr>
+        <tr><td class="v">S118</td><td>食べ予測（kf3）を S48・S100 の作りへ（各 30世界）</td><td><span class="chip c-win">本物>ずらし ○○</span><span class="chip c-win">しきたりが残る ○○</span><span class="chip c-lose">ずらし<道具 ××</span></td><td>S48 本物 0.508・0.498／ずらし 0.382・0.40／道具 0.319・0.297（30/30、6/30・3/30）。S100 0.465・0.453 対 0.01（29/30・24/30）</td></tr>
+        <tr><td class="v">S119</td><td>食べ予測の頭で構われないと（S64 の作り・調整の段）</td><td><span class="chip c-lose">増えなし→本計測せず</span></td><td>戻った直後の増え kf0 −0.012・kf1 −0.012・kf3 −0.022（>0 は 3・5・1/10）。8回目の ×</td></tr>
+        <tr><td class="v">S120</td><td>養育者の視線＝今の当たり（流行り×視線・食べ予測 kf3・見える／ずらし／見えない・各 30世界）</td><td><span class="chip c-win">養育者の前で速い ○○</span><span class="chip c-win">仲間の前でも速い ○○</span><span class="chip c-win">食べ物が増える ○○</span></td><td>切替後200手 養育者前 0.704・0.716 対 0.22、仲間前 0.266・0.265 対 0.239・0.234（差 0.03）、食べ 0.090 対 0.055（全部 30/30）</td></tr>
+        <tr><td class="v">S122</td><td>新章 指さし：手8（取る4・指す4）、指すと養育者がその物を見る／見ない（食べ予測 窓3・各 30世界）</td><td><span class="chip c-win">指した次に取る ○○</span><span class="chip c-win">食べ物が増える ○○</span><span class="chip c-win">当たりを指す 効く>効かない ○○</span><span class="chip c-lose">指すことが育つ ××</span></td><td>指した次に取る 0.576・0.522 対 0.141・0.123。当たりを指す 効く 0.127・0.130（偶然 0.125）対 効かない 0.087・0.097（30/30・28/30）。育つ 17/30・19/30</td></tr>
+        <tr><td class="v">S123</td><td>指す手柄の診断と kf10（場面を分けて数える・各 30世界）</td><td><span class="chip c-win">指すのが得な場面で指す ○○</span><span class="chip c-win">育つ ○○</span><span class="chip c-win">食べ物が増える ○○</span></td><td>見ていない時に当たりを指す 効く 0.137→0.344・0.144→0.344 対 効かない 0.108・0.112（全部 30/30）。食べ 0.044 対 0.024。f̂[当たりを指す] 0.035 > 取る −0.007</td></tr>
+        <tr><td class="v">S124</td><td>指す相手を選ぶか（S123 の作り・各 30世界）</td><td><span class="chip c-win">養育者の前でだけ当たりを指す ○○</span><span class="chip c-win">差は効く世界で大きい ○○</span></td><td>当たりを指す 効く 養 0.178・0.171／仲 0.131・0.127、効かない 0.092／0.124（全部 30/30）。指す手全体は 仲間の前 0.48〜0.50</td></tr>
+        <tr><td class="v">S125</td><td>叙述的指さし：指しても食べ物なし、指すと養育者が見て褒める／褒めない（一番の赤ちゃん・手8・各 30世界）</td><td><span class="chip c-win">褒められると指す ○○</span><span class="chip c-win">食べ物を損してでも ○○</span><span class="chip c-lose">指すことが育つ ××</span></td><td>養育者の前で指す 褒める 0.434→0.231・0.436→0.256／褒めない 0.109・0.118（30/30・29/30）。食べ 0.047 対 0.066（30/30）。育つ 2/30・1/30</td></tr>
+        <tr><td class="v">S126</td><td>褒めの値打ちの記録（S125 の作り・初め 0〜1000／終わり 7000〜8000・各 30世界）</td><td><span class="chip c-lose">つながりの上乗せが下がる ××</span><span class="chip c-lose">u が下がる ××</span><span class="chip c-win">癖が指す手を下げる ○○</span></td><td>項 指す−取る 0.012→0.302・0.311（0/30）、u 0.010→0.036（0/30）、Q 指す−取る 0.030→−0.066（30/30）</td></tr>
+        <tr><td class="v">S127</td><td>選びで癖の重み λ=0.2（S125 の作り・λ1／λ0.2 褒める／λ0.2 褒めない・各 30世界）</td><td><span class="chip c-win">指すことが育つ ○○</span><span class="chip c-win">λ1 より指す ○○</span><span class="chip c-win">褒めのおかげ ○○</span></td><td>養育者の前で指す λ0.2 褒める 0.415→0.455・0.416→0.461（23/30・25/30）／λ1 0.27（30/30）／褒めない 0.09（30/30）。食べ 0.025 対 0.047。調整：S64 は λ によらず出ない、S48 0.41〜0.43</td></tr>
+        <tr><td class="v">S128</td><td>欠乏は音量つまみか（S64 の作り・λ1／λ0.2・戻った直後・各 30世界）</td><td><span class="chip c-win">負ける時の差が深まる ○○</span><span class="chip c-win">勝つ割合は増えない λ1 ○○</span><span class="chip c-lose">λ0.2 ×○</span><span class="chip c-win">勝つ時の差が広がる λ0.2 ○○</span><span class="chip c-lose">λ1 ××</span></td><td>負ける時の差 λ1 −0.376→−0.486・−0.380→−0.479、λ0.2 −0.354→−0.506（全部 30/30）。勝つ割合 λ1 0.780→0.767（25/30・25/30）、λ0.2 0.837→0.835（15/30・24/30）。勝つ時の差 λ0.2 0.181→0.253（30/30）、λ1 0.202→0.210（15/30・13/30）</td></tr>
+        <tr><td class="v">S129</td><td>相手に効く欠乏（最近もらえていない分を、大事な相手の一番喜ぶ手にだけ足す・目安0.05・速400・kD30・S64 の作り・各 30世界）</td><td><span class="chip c-win">戻って増える ○○</span><span class="chip c-win">元より大きい ○○</span><span class="chip c-win">見られ分けを壊さない ○○</span></td><td>P養 欠乏 0.795・0.788 対 なし 0.766・0.765、増え +0.030・+0.031 対 元 −0.033（25/30・23/30、28/30・29/30）。見られ分け 0.417・0.422 対 0.43・0.422（27/30・26/30）。<b>9回目で初めて出た</b></td></tr>
+        <tr><td class="v">S130</td><td>離れる長さ 250／500／1000（S129 の頭・戻る時刻をそろえる・各 30世界）</td><td><span class="chip c-win">250・500 で増える ○○</span><span class="chip c-lose">1000 で増える ×○</span><span class="chip c-lose">長いほど増える ××</span><span class="chip c-win">長すぎると減る ○○</span></td><td>増え kD30 250 +0.020・+0.034／500 +0.018・+0.027／1000 +0.003・+0.021（23/30・27/30、25・27、17・22）。1000>250 4・2、500>1000 28・29。元の頭は −0.02〜−0.04</td></tr>
+        <tr><td class="v">S131</td><td>S129 を 64感覚・雑音0.6 で（各 30世界）</td><td><span class="chip c-win">戻って増える ○○</span><span class="chip c-win">元より大きい ○○</span><span class="chip c-win">見られ分けを壊さない ○○</span></td><td>増え kD30 +0.046・+0.048 対 kD0 −0.066・−0.058（28/30・24/30、30/30）。見られ分け 0.415・0.396 対 0.397・0.396（28/30）</td></tr>
+        <tr><td class="v">S132</td><td>親友だけが一時いない（S59 の世界・S129 の頭・調整の段）</td><td><span class="chip c-lose">親友に向けた手は増えない→本計測せず</span></td><td>親友の前で親友の手の増え kD30 +0.006（6/10）、kD0 +0.001。足りなさを1つの平均で持つので、養育者がいれば足りなさが生まれない</td></tr>
+        <tr><td class="v">S133</td><td>相手ごとの足りなさ（覚えた相手ごとに最後に会った時刻・調整の段）</td><td><span class="chip c-lose">親友に向けた手は増えない→本計測せず</span></td><td>増え kD0〜100 で +0.001〜+0.005。上乗せは親友の手に乗る（0.97〜0.99）が、普段の足りなさも 0.2〜0.55 と高く、不在の有無で差が出ない</td></tr>
+        <tr><td class="v">S134</td><td>いつもと比べた足りなさ（会う間がいつもの何倍か・調整の段）</td><td><span class="chip c-lose">親友・養育者とも増えない→本計測せず</span></td><td>増え 親友 +0.000〜+0.006、養育者 −0.012〜+0.003（kD0〜100）。普段の P養 0.757→0.80（普段も上乗せが掛かる）</td></tr>
+        <tr><td class="v">S135</td><td>新章 順番交代：手5（声4・待つ1）、養育者の 話す／聞く 番、交代／でたらめ（一番の赤ちゃん・各 30世界）</td><td><span class="chip c-win">交代が育つ ○○</span><span class="chip c-win">交代の世界でだけ ○○</span><span class="chip c-win">相手の番は待つ ○○</span></td><td>差 −0.030→+0.292・−0.018→+0.282（全部 30/30）。話す時に声 0.741→0.503。でたらめ 差 0。作りから出やすい</td></tr>
+        <tr><td class="v">S136</td><td>褒めだけで順番交代（番の褒めに食べ物なし・λ1／0.2・調整の段）</td><td><span class="chip c-lose">育たない→本計測せず</span></td><td>差 λ1 −0.117→−0.032（でたらめ −0.005）、λ0.2 −0.131→−0.047。初めのマイナスから戻るだけで、でたらめより低いまま</td></tr>
+        <tr><td class="v">S137</td><td>食べ物で覚えた順番交代を 4000 から褒めだけ／でたらめ／そのまま（各 30世界）</td><td><span class="chip c-win">褒めはでたらめより長く保つ ○○</span><span class="chip c-win">褒めだけでは崩れる ○○</span><span class="chip c-win">終わりにも残る ○○</span></td><td>差 切替前 0.188・0.185 → 終わり 褒めだけ 0.070・0.083／でたらめ 0.018・0.025／そのまま 0.293・0.279（25/30・29/30、30/30、30/30）</td></tr>
+        <tr><td class="v">S138</td><td><b>一番の赤ちゃん v2</b>（食べ予測 kf3＋相手に効く欠乏 kD30＋λ0.2）対 元、5つの章（各 30世界）</td><td><span class="chip c-win">S48 保つ ○○</span><span class="chip c-win">S64 甘え ○○</span><span class="chip c-win">S116 視線 ○○</span><span class="chip c-win">S123 指さし ○○</span><span class="chip c-lose">S127 叙述的指さし ××</span></td><td>全部／元：見られ分け 0.465・0.469／0.421・0.409、甘え +0.041・+0.043／−0.028・−0.022、真ん中の視線 0.569・0.584／0.06、当たりを指す 0.24・0.23／0.10、叙述的指さしの育ち −0.14／−0.17〜−0.19（0/30）</td></tr>
+        <tr><td class="v">S139</td><td>叙述的指さしと食べ予測の両立（B：大事な相手の前で食べ予測を弱める／C：承認も食べ予測に／kf・λ を変える・調整の段）</td><td><span class="chip c-lose">7通りとも育たない→本計測せず</span></td><td>叙述的指さしの育ち −0.05〜−0.16（0/10）。B は減りを小さくするが見られ分け 0.47→0.38、視線追い 0.60→0.46</td></tr>
+        <tr><td class="v">S140</td><td>見てもらう喜び（承認を癖の報酬に直接・kS 0.1／0.3／1・v2 の上・調整の段）</td><td><span class="chip c-lose">叙述的指さしは育たない→本計測せず</span></td><td>育ち −0.152〜−0.198（0/10）。見られ分けは 0.47→0.52 と上がる、他の3つは保つ</td></tr>
+        <tr><td class="v">S141</td><td>共同注意の喜び（指した物を養育者が見たら癖の報酬に kJ・v2 の上・kJ0／kJ3・各 30世界）</td><td><span class="chip c-win">叙述的指さしが育つ ○○</span><span class="chip c-win">喜びなしより育つ ○○</span><span class="chip c-win">代わりに食べ物が減る ○○</span></td><td>育ち kJ3 +0.206・+0.195／kJ0 −0.158・−0.141（全部 30/30）。終わりの指す 0.888 対 0.186、食べ 0.015 対 0.057。調整：元の頭なら kJ0.3 で育つ、v2 は λ0.2 で 1/5 に弱まるので kJ3 が要る</td></tr>
+        <tr><td class="v">S142</td><td>共同注意の喜びを満ちている時だけ（kJ5·(1−空腹)・v2 の上・いつでも kJ3／喜びなし と比べる・各 30世界）</td><td><span class="chip c-win">育つ ○○</span><span class="chip c-win">食べ物を保つ ○○</span><span class="chip c-win">指してばかりにならない ○○</span></td><td>育ち +0.095・+0.081（30/30・28/30）、終わりの指す 0.524 対 いつでも 0.891・0.879、食べ 0.036・0.038 対 0.015（30/30）。喜びなし 0.057・指す 0.19</td></tr>
+        <tr><td class="v">S143</td><td><b>一番の赤ちゃん v3</b>（v2＋満ちている時の共同注意の喜び kJ5）対 元、5つの章（各 30世界・調整なし）</td><td><span class="chip c-win">S48 ○○</span><span class="chip c-win">S64 甘え ○○</span><span class="chip c-win">S116 視線 ○○</span><span class="chip c-win">S123 指さし ○○</span><span class="chip c-win">叙述的指さし ○○</span></td><td><b>5つ同時に出た</b>（30・30・30・30・30／30・30・30・30・29）。v3／元：見られ分け 0.469／0.42、甘え +0.036・+0.046／−0.02・−0.03、真ん中の視線 0.57／0.06、当たりを指す 0.21・0.28／0.10、叙述的指さしの育ち +0.085・+0.084／−0.17</td></tr>
+        <tr><td class="v">S144</td><td>v3 で残りの章（S135 順番交代・S90 信頼の入れ替わり）（各 30世界）</td><td><span class="chip c-win">交代 > 無関係 ○○</span><span class="chip c-lose">元から崩れない ××</span><span class="chip c-win">新しいお手本を写す ○○</span></td><td>交代の差 v3 0.261／元 0.289・0.299（30/30、19/30・18/30）。新−古 v3 +0.149・+0.096／元 +0.059・+0.078（30/30・26/30）</td></tr>
+        <tr><td class="v">S145</td><td>v3 としきたり（多数に合わせる頭に v3 の部品・S100 の損の世界・各 30世界）</td><td><span class="chip c-win">しきたりが残る ○○</span><span class="chip c-win">元から崩れない ○○</span><span class="chip c-win">食べ物を保つ ○○</span></td><td>しきたり v3 0.459・0.464／元 0.471・0.478／でたらめ 0.02（26/30・30/30、21・27）。食べ v3 0.047・0.041／元 0.040・0.029（24・25）</td></tr>
+        <tr><td class="v">S146</td><td>v3 の5つの章を 64感覚・雑音0.6 で（調整なし・各 30世界）</td><td><span class="chip c-win">5つとも ○○</span></td><td>全部 30/30（叙述的指さしの追試 29/30）。v3／元：見られ分け 0.466・0.478／0.394・0.409、甘え +0.028・+0.033／−0.04〜−0.05、真ん中の視線 0.61／0.06、当たりを指す 0.32・0.36／0.09・0.11、叙述的指さし +0.071・+0.081／−0.14・−0.09</td></tr>
+        <tr><td class="v">S147</td><td>新章 社会的参照：良い／悪い物を養育者の表情で（v3 本物／v3 ずらし／元 本物・各 30世界）</td><td><span class="chip c-win">育つ ○○</span><span class="chip c-win">本物でだけ ○○</span><span class="chip c-win">仲間より養育者 ○○</span><span class="chip c-win">v3＞元 ○○</span></td><td>表情に従う差 v3 0.146→0.441・0.136→0.443（全部 30/30）、ずらし 0、仲間の表情 0、元 0.064・0.059。食べ v3 0.048 対 元 0.03</td></tr>
+        <tr><td class="v">S148</td><td>分からない時に顔を見に行くか（手3＝顔を見る・物の半分に見た目の手がかり・調整の段）</td><td><span class="chip c-lose">見に行くは育たない→本計測せず</span></td><td>顔を見る（手がかりなし − あり）v3 −0.020（1/10）、元 +0.005。見えた表情には v3 が従う（+0.208、元 +0.031）</td></tr>
+        <tr><td class="v">S149</td><td>見に行かない理由の診断（S148 の作り・記録）</td><td><span class="chip c-note">前提の誤り</span></td><td>手がかりなしで f̂[取る] 0.100 > f̂[見る] 0.038（10/10）＝見ずに取るほうが得な世界だった（悪い物の損が小さく、見ても半分しか表情が見えない）。子は正しく学んでいた</td></tr>
+        <tr><td class="v">S150</td><td>見に行くことが割に合う世界（外れ損0.3・見たら次は養育者・調整の段）</td><td><span class="chip c-lose">見に行くは育たない→本計測せず</span></td><td>顔を見る（なし−あり）v3 +0.001（5/10）・元 −0.006。計算上は見に行くのが一番得（+0.024 対 −0.126）。見えた表情には v3 +0.252</td></tr>
+        <tr><td class="v">S151</td><td>食べ予測が外れの損も見る（損も・S150 の世界・v3／v3損も・各 30世界）</td><td><span class="chip c-win">分からない時に見に行く ○○</span><span class="chip c-win">損もなしより ○○</span><span class="chip c-win">育つ ○○</span></td><td>顔を見る（なし−あり）損も 0.035→0.14・0.044→0.127／v3 −0.012・−0.016（全部 30/30）。見る 無 0.37 有 0.24。見えた表情に従う 0.48・0.47 対 0.26・0.24</td></tr>
+        <tr><td class="v">S152</td><td><b>一番の赤ちゃん v4</b>（v3＋損も）対 元、5つの章（調整なし・各 30世界）</td><td><span class="chip c-win">5つとも ○○</span></td><td>見られ分け 0.497・0.499／0.42、甘え +0.068・+0.065／−0.03、真ん中の視線 0.64／0.05、当たりを指す 0.33・0.29／0.10、叙述的指さし +0.059・+0.066（29/30・30/30）。v4 は分からない時に顔を見に行く（S151）も持つ</td></tr>
+        <tr><td class="v">S153</td><td><b>表情の信頼性</b>：仲間の1人（物知り）の表情の正直さ 100%・70%・50%、v4（各 30世界）</td><td><span class="chip c-win">4つとも ○○</span></td><td>物知りの表情に従う差 0.357・0.054・−0.003（本）／0.363・0.043・0.002（追試）。正直なほど従う 30・30、70%でもほかの仲間より 28・27、70%＞でたらめ 28・25、養育者（0.63）には従い続ける 30・30。下げ方は比例より急</td></tr>
+        <tr><td class="v">S154</td><td><b>70% 物知りを頼らないのは養育者で足りているからか</b>：養育者の表情もでたらめにする（v4・各 30世界）</td><td><span class="chip c-lose">見当 ××</span></td><td>70% 物知りに従う差 養育者あり 0.061・0.053／でたらめ 0.055・0.063、でたらめ＞あり 16・15/30（×）。対照：でたらめの世界でも 0.7＞0.5 27・28（○）。食べは 0.043→0.026 に減るのに頼り方は変わらない</td></tr>
+        <tr><td class="v">S155</td><td><b>物知りに会う回数</b>：仲間の番のうち物知りの割合 1/7→1/2（v4・各 30世界）</td><td><span class="chip c-lose">会えば増える ○○／比例 ××</span></td><td>70% 物知りに従う差 0.051・0.045→0.086・0.085（25・25/30 ○）。100% も 0.37→0.52 に増え、比 0.7÷1.0 は 0.152→0.156・0.123→0.163（緩む 15・22 で割れ）、比例 0.4 に届く 0・0/30（×）。対照 0.7>0.5 30・30</td></tr>
+        <tr><td class="v">S156</td><td><b>値打ちか選び方か → 前提の訂正</b>：顔ごとの取る差と頭の中（余裕・食べ予測・癖）を記録（v4・各 30世界・記録で手は変わらない sha 同じ）</td><td><span class="chip c-win">3つとも ○○</span></td><td>0.7÷1.0 の比：顔ごとの取る差 0.365・0.396（比例 22・22）、食べ予測 0.356・0.396（22・25）、正体ごとの取る差 0.171・0.149（二乗 28・29）。S153〜S155 の「比例なら 0.4」は誤りで、正しくは 0.4²≈0.16。急な下げ方は無かった</td></tr>
+        <tr><td class="v">S157</td><td><b>信頼の改め</b>：物知りの正直さを 4000手で 1.0→0.5／0.5→1.0 に変える（v4・各 30世界・顔ごとの取る差）</td><td><span class="chip c-win">下がる・育つ ○○</span> <span class="chip c-lose">改めきる・失うのが早い ××</span></td><td>ずっと1.0 0.339・0.389／1.0→0.5 0.162・0.178／0.5→1.0 0.178・0.194／ずっと0.5 −0.013・0.011。下がる 30・30、育つ 30・30、中間より下まで 12・18、失うほうが早い 12・16</td></tr>
+        <tr><td class="v">S158</td><td><b>損を重く見る</b>：食べ予測の我慢の損に 損重さ 3（v4・S157 の4腕・各 30世界）</td><td><span class="chip c-win">3つとも ○○</span></td><td>損重さ3：失う量 0.240・0.247 ／ 育つ量 0.151・0.169（失う>育つ 27・26）。損重さ1 は 0.17・0.205 ／ 0.197・0.206（13・14）。偏りが増える 25・25、失う量が増える 24・26。ずっと1.0 も 0.35→0.40。食べ 0.044→0.039</td></tr>
+        <tr><td class="v">S159</td><td><b>一番の赤ちゃん v5</b>（v4＋損重さ3）対 元、6つの章（調整なし・各 30世界）</td><td><span class="chip c-win">6つとも ○○</span></td><td>見られ分け 0.462・0.465、甘え +0.143・+0.146、真ん中の視線 0.675・0.666、当たりを指す 0.303・0.276、叙述的指さし +0.050・+0.026（30・25）、顔を見に行く +0.096・+0.108。v5≧v4：甘え 30・30、視線 26・23、指す 15・19、<b>見られ分け 2・3／叙述 10・7／顔を見に行く 5・9 は v4 より落ちる</b>。1回目の本計測は30分制限で止まり結果なしで破棄・再実行</td></tr>
+        <tr><td class="v">S160</td><td><b>信頼の持ち越し</b>：前半は表情（物知り 1.0／0.5）、後半は別の次元の2つ目の合図（0.9）だけ（v4・各 30世界）</td><td><span class="chip c-lose">持ち越し ××</span> <span class="chip c-win">学ぶ・対照 ○○</span></td><td>後半の初め（4000〜5000）合図2に従う差 1.0 0.125・0.080／0.5 0.099・0.110（1.0>0.5 17・11）。後半の終わり 0.5 でも 0.253・0.218（>0 30・30）。ほかの仲間の前 ≈0（30・30）。見込みどおり＝人ごとの信頼の部品が無い</td></tr>
+        <tr><td class="v">S161</td><td><b>人ごとの信頼 τ を足す</b>：相手の前で食べ予測が当たった度合いを RLS で覚え、食べ予測の項に (1+kτ·τ)（S160 世界・調整のみ）</td><td><span class="chip c-lose">調整で × ・本計測なし</span></td><td>kτ 0／10／50／200 で後半の初めの合図2 1.0>0.5 が 7／5／4／6 /10、kτ を上げるほど従い方が全部下がる。診断：τ は養育者（+0.037）とほかは分けるが物知り 1.0（−0.014）と 0.5（−0.017）を分けない。後半は新しい入力の次元で全員 −0.13 に外れ、掛け算が 0 に切られる</td></tr>
+        <tr><td class="v">S162</td><td><b>人ごとの信頼を直す</b>：τ は顔だけから・exp 型の掛け算・物知り率0.5・手応えを「一致」（予測の向き×結果の向き）に（kτ 0／50・各 30世界）</td><td><span class="chip c-lose">持ち越し ○× ／ τ のおかげ ××</span></td><td>診断：「外れの小ささ」はでたらめな物知りを高く見た（1.0>0.5 0/10）→「一致」で 10/10。本番：後半の初め 合図2 kτ50 1.0 0.173・0.160／0.5 0.138・0.169（1.0>0.5 20・16）、kτ0 より差が大きい 17・15、kτ0 の 1.0>0.5 14・14</td></tr>
+        <tr><td class="v">S163</td><td><b>信頼で学ぶ速さを変える</b>：食べ予測を重みつき RLS（信頼する相手の前の経験を w 倍）、効き目の掛け算あり／なし（調整のみ）</td><td><span class="chip c-lose">調整で × ・本計測なし</span></td><td>後半の初め 1.0>0.5：kτ0 6/10、重み50 2、重み150 7、両方50 7、両方150 5（kτ0 より差が大きい 3〜7）。重みで後半の終わりも 0.32→0.24〜0.29 に落ちる。人ごとの信頼の持ち越しの筋は S160〜S163 で閉じる（未解決）</td></tr>
+        <tr><td class="v">S164</td><td><b>人見知り</b>（新章）：4000手から知らない大人が仲間の番の3割に（元・v4・各 30世界、会い始め 4000〜5000）</td><td><span class="chip c-lose">3つとも ××</span></td><td>v4：取る 知らない−仲間 +0.007・+0.003（控える 13・14、大胆 17・16）、顔を見る 0.000・0.000（15・15）。元：控える 16・15、顔を見る 19・24。慣れた後（7000〜8000）も差なし</td></tr>
+        <tr><td class="v">S165</td><td><b>見慣れなさ＝分からなさ</b>：取る手の食べ予測の自信の無さ u=φᵀPφ の分だけ取る手を下げる（v4＋kU0.2・各 30世界）</td><td><span class="chip c-win">控える・慣れる・おかげ・保つ ○○</span> <span class="chip c-lose">顔を見る ○×</span></td><td>会い始めの取る差 −0.072・−0.106（<0 28・27）、慣れた後 −0.023・−0.032（慣れる 24・24）、kU0 より控える 28・26、顔を見る差 +0.021・+0.012（22・18）、情報探し 0.145・0.140（30・30）、食べ 0.031 のまま。診断：u 知らない 6.18／仲間 1.72／養育者 0.52</td></tr>
+        <tr><td class="v">S166</td><td><b>v6</b>（v4＋kU0.2）対 元、7つの章（調整なし・各 30世界・1本ずつ書き足して再開できる走らせ方）</td><td><span class="chip c-win">6つ ○○</span> <span class="chip c-lose">見られ分け ××</span></td><td>見られ分け 0.422・0.418（19・17）、甘え +0.035・+0.031、真ん中の視線 0.403・0.397、当たりを指す 0.14・0.15、叙述育ち +0.383・+0.378、顔を見に行く 0.149・0.152、人見知り −0.068・−0.071（24・25）。v6≧v4 は 見られ分け 2・4、視線 0・0、指す 2・2 で v4 より落ちる。原因の見込み＝手0 決め打ち</td></tr>
+        <tr><td class="v">S167</td><td><b>人見知りの部品を手の決め打ちなしに</b>：どの手も自分の自信の無さ u_a の分だけ下げる（調整のみ）</td><td><span class="chip c-lose">調整で × ・本計測なし</span></td><td>全手 kU 0.2／0.5／1.0：会い始めの取る差 −0.014／−0.000／−0.009（<0 6／5／9）、顔を見る差 +0.010／+0.011／−0.062、情報探し 0.071／0.085／0.139、食べ 0.027〜0.030（手0型 0.032）。見慣れない顔では全部の手の自信が同じだけ下がるので順番が変わらない</td></tr>
+        <tr><td class="v">S168</td><td><b>見て学ぶ</b>（新章）：物に共通の種類（4000手で初めての種類へ）、仲間が取った物の種類と結果が見本で見え、取る手の食べ予測を見本で3回学ぶ（v4 代理0／3・各 30世界）</td><td><span class="chip c-win">3つとも ○○</span></td><td>4000〜4600 の種類の差 0.292・0.301 対 0.208・0.218（23・25）、4000〜4300 >0 27・26（代理0 でも 0.17・0.19）、食べ 0.037・0.038 対 0.032・0.031（27・30）。確かめで『共』の使い回しを踏み（S151 の選び.py を同じ処理で読んで頭が差しかわる）、別の処理で取り直した</td></tr>
+        <tr><td class="v">S169</td><td><b>見て避けるか</b>：S168 の世界・頭のまま、良い種類／悪い種類を取る割合と 初めて悪いを取るまでの手数を分けて数える（代理0／3・各 30世界）</td><td><span class="chip c-win">得に手を出す・見本の偏り ○○</span> <span class="chip c-lose">損を避ける・痛い目の前 ××</span></td><td>良い 0.358・0.367 対 0.256・0.227（27・29）、悪い 0.061・0.057 対 0.059・0.053（13・14）、初めて悪いまで 6.3・7.8 対 8.0・8.5 手（9・15）、取った中の悪い 0.164・0.168（24・22）。食べ 0.037・0.035 対 0.029・0.031</td></tr>
+        <tr><td class="v">S170</td><td><b>失敗を見せる仲間</b>：赤ちゃん1 がいつも取る（悪い物でも損をする）、代理0／3 × あり／なし（調整のみ）</td><td><span class="chip c-lose">調整で × ・前提の訂正</span></td><td>悪いを取る 代理0 0.044／0.060、代理3 0.056／0.059（代理3＋あり < 代理3のみ 2/10）。悪い物を取る割合は探りだけの 0.025 に近く、下げしろが無い＝S169 の「見本の偏り」は主因でない見込み</td></tr>
+        <tr><td class="v">S171</td><td><b>取りたくなる悪い物</b>：後半の悪い種類を前半の良い種類そっくりに（似せる 0.2／0.5）、代理0／3 × 何でも取る仲間あり／なし（調整のみ）</td><td><span class="chip c-lose">調整で × ・本計測なし</span></td><td>下げしろ：悪いを取る 代理0 0.128（似せる0.2）○。見て避ける：代理3＋何でも < 代理0＋何でも 4/10（0.2）・6/10（0.5）、初めて悪いまで延びる 4・3/10。自分で 600手に 30回以上 悪い物を取るので見本の分が小さい見込み</td></tr>
+        <tr><td class="v">S172</td><td><b>v7＝v4＋見て学ぶ</b>は見本の無い世界で v4 と同じ手か（7世界×種3・8000手の sha）</td><td><span class="chip c-win">21/21 同じ</span></td><td>v7＝v4 21/21、対照 v4≠元 21/21。→ v7 は v4 の章をそのまま持ち、見て学ぶ（S168）を足した「一番の赤ちゃん」。章ごとの本計測は要らない（同じ手なら同じ数字）</td></tr>
+        <tr><td class="v">S173</td><td><b>安全基地</b>（新章）：S151 の世界のまま、物の1手目に養育者／仲間に見られている時の 分からない物を取る・顔を見る（元・v4・各 30世界）</td><td><span class="chip c-lose">安全基地 ××</span> <span class="chip c-win">確かめてから・逆・分からない物だけ ○○</span></td><td>v4 分からない物を取る 養育者 0.032・0.030／仲間 0.070・0.068（>0 0・0、<0 30・30）、顔を見る差 +0.039・+0.029（27・25）、手がかりありの取る差 +0.091・+0.085（分からない物だけ 30・30）。元 取る差 +0.041（26・26）、見る差 −0.126（0・0）</td></tr>
+        <tr><td class="v">S174</td><td><b>親のそばは損が小さい</b>：養育者に見られている手の悪い物の損を×0.2（守り）、守りなし・見たら次は養育者=False の腕も（v4・各 30世界）</td><td><span class="chip c-win">4つとも ○○</span></td><td>分からない物を取る差 守りなし −0.039・−0.039／守り0.2 +0.095・+0.114（安全基地 30・30、おかげ 30・30）、顔を見る差 +0.052→+0.006・+0.001（任せる 22・25）、見たらF・守りなし −0.030・−0.032（30・30）。食べ 0.032→0.035</td></tr>
+        <tr><td class="v">S175</td><td><b>相手ごとの好み</b>（新章）：S16 世界に好みが逆の大人B（養育者の番の半分）、元／v4／v4・B同じ（各 30世界）</td><td><span class="chip c-win">4つとも ○○</span></td><td>人ごとの見られ分け 終わり v4 0.549・0.544／元 0.503・0.497／B同じ −0.001・−0.008。分ける 30・30、育つ 30・30、違う時だけ 30・30、v4>元 26・26（見込み × が ○）。対照の数え方が最初は恒等的に 0 だった穴を直した</td></tr>
+        <tr><td class="v">S176</td><td><b>本物のブロッコリー課題</b>：赤ちゃんごとの自分の好きな手（誰が見ていても得 0.05）、v4 0.05／v4 0（得なし）／元 0.05（各 30世界）</td><td><span class="chip c-win">3つとも ○○</span></td><td>仲間の前の自分好き 0.363・0.356 対 0.263・0.261（30・30）、B の前 B好き−自分好き +0.362・+0.350（30・30）、自分好き 仲間 0.36／B の前 0.20（30・30）。元の自分好き 0.26（v4 より小さい 30・30）。調整：自分0.1 で +0.006、0.2 で −0.451（自分中心）</td></tr>
+        <tr><td class="v">S177</td><td><b>14か月→18か月</b>：S176 の世界のまま、1000手ごとの B の前の（B好き−自分好き）（v4 自分0.05 主・0.1 参考・各 30世界）</td><td><span class="chip c-win">育つ ○○</span> <span class="chip c-lose">初めは自分中心・切り替わる ××</span></td><td>自分0.05：+0.03→+0.12→+0.19→+0.25→+0.29→+0.31→+0.35→+0.37（本）。初め<0 13・3、育つ 30・30、切り替わる 13・3。自分0.1：−0.02 前後から 0 前後のまま（切り替わる 7・9）</td></tr>
+        <tr><td class="v">S178</td><td><b>生まれつきの自分の好み</b>：自分の好きな手の score にずっと k生まれ（0.1／0 比べる用、v4・各 30世界）</td><td><span class="chip c-win">4つとも ○○</span></td><td>k0.1 の B の前の差：−0.07→0.00→+0.04→+0.07→+0.11→+0.14→+0.14→+0.16（本）。初め<0 26・25、終わり>0 30・30、切り替わる 26・25、k0 より初めが自分中心 27・23。調整：k0.3 は −0.2 のまま、k1.0 は −0.8（0/10）</td></tr>
+        <tr><td class="v">S179</td><td><b>知らない人に教える</b>（新章）：S123 の指さしの世界のまま、養育者の視線が当たりでない（知らない）／当たり（知っている）時の 当たりを指す割合（元・v4・各 30世界）</td><td><span class="chip c-win">3つとも ○○</span></td><td>v4 知らない時に指す 0.285・0.299／知っている時に指す 0.024・0.022・取る 0.742・0.741、差 +0.255・+0.250（30・30）、初め +0.005・+0.023（育つ 30・30）、元 +0.029・+0.037（v4>元 30・30）。「知っている」＝今見ている（記憶ではない）</td></tr>
+        <tr><td class="v">S180</td><td><b>記憶が要る知らない</b>：養育者の視線を入力から消し、視線はその子を見ていない手でだけ移る（いない間に見失う）（v4 見える／隠す・各 30世界）</td><td><span class="chip c-lose">見えなくても見分ける ××（限界）</span> <span class="chip c-win">見える>隠す・損 ○○</span></td><td>指す差 見える +0.284・+0.246／隠す −0.012・−0.006（>0 7・10）、見える>隠す 30・30、食べ 0.045／0.018（30・30）。調整：元 隠す −0.034</td></tr>
+        <tr><td class="v">S181</td><td><b>記憶を足す</b>：子ごとに m←0.5m＋0.5［相手の顔の見た目, 自分の手］を感覚の入力に（S180 の隠す世界・v4 記憶なし／0.5・各 30世界）</td><td><span class="chip c-win">教える・取る・おかげ ○○</span> <span class="chip c-lose">損を取り戻す ××</span></td><td>指す差 +0.014・+0.015（21・25）、取る差（知っている−知らない）+0.120・+0.134（30・30）、記憶なし +0.026・+0.015（おかげ 30・30）、食べ 0.0178・0.0191 対 0.0191・0.0198（6・15）</td></tr>
+        <tr><td class="v">S182</td><td><b>長く育てる</b>：S181 の世界・頭のまま寿命 24000（記憶なし／0.5・各 30世界・1本ずつ書き足す走らせ方）</td><td><span class="chip c-win">4つとも ○○</span></td><td>終わりの指す差 記憶0.5 +0.061・+0.060（29・29）、6000〜8000 +0.011・+0.009 から育つ（30・28）、記憶なし −0.012・−0.007（おかげ 30・30）、取る差 +0.137・+0.151、食べ 0.0354・0.0352 対 0.0333・0.0321（23・29）</td></tr>
+        <tr><td class="v">S183</td><td><b>記憶のどこが効くか</b>：記憶の中身を 両方／顔だけ／手だけ（寿命 24000・各 30世界）</td><td><span class="chip c-win">手だけで教える・手>顔 ○○</span> <span class="chip c-lose">顔だけで教える・両方>手 ××</span></td><td>指す差 両方 +0.056・+0.060／顔だけ −0.007・−0.009（13・3）／手だけ +0.049・+0.051（29・30）、手>顔 30・30、両方>手 17・19。取る差 0.148・0.141／0.041・0.040／0.084・0.089、食べ 0.035・0.033／0.027・0.026／0.038・0.038</td></tr>
+        <tr><td class="v">S184</td><td><b>大人がさっきいたか</b>：S183 の世界に「2手続けてそばにいると大人が自分で当たりを見る」（両方／顔だけ／手だけ・寿命 24000・各 30世界）</td><td><span class="chip c-win">3つとも ○○</span></td><td>指す差 両方 +0.030・+0.036／顔だけ +0.022・+0.023（30・30）／手だけ +0.010・+0.012、顔>手 27・27、両方>手 30・30。S183（顔<手）と逆＝使い分け。食べ 0.048〜0.051</td></tr>
+        <tr><td class="v">S185</td><td><b>見られ分けの余韻</b>（新章）：見られ分けの世界に記憶（α0.5）、元・v4 × なし／記憶（各 30世界）</td><td><span class="chip c-win">元に余韻・記憶のおかげ・v4 の見られ分けが弱まる ○○</span> <span class="chip c-lose">v4 に余韻 ××</span></td><td>余韻 元 記憶 +0.101・+0.110（30・30）／元 なし −0.004・−0.003（おかげ 30・30）／v4 記憶 −0.009・−0.006（8・8）。見られ分け v4 0.496・0.494 → 0.399・0.398（30・30）、元 0.422 → 0.316</td></tr>
+        <tr><td class="v">S186</td><td><b>余韻を消す部品</b>：記憶0.5 の見られ分けの世界で v4／kf0／λ1／kf0＋λ1（各 30世界）</td><td><span class="chip c-win">4つとも ○○</span></td><td>余韻 v4 −0.006・−0.002／kf0 +0.059・+0.060（29・29）／λ1 +0.014・+0.021（21・23）／両方 +0.101・+0.109（30・30）。見られ分け 0.401→0.349／0.385／0.315。調整：kD0・損もなし・kJ0（この世界では働かない）は戻さない</td></tr>
+        <tr><td class="v">S187</td><td><b>余韻は育つと減るか</b>：記憶0.5 の見られ分けの世界、1000手ごとの余韻（元・v4・各 30世界）</td><td><span class="chip c-win">元は育つ・頭打ち後も・遅れて育つ ○○</span> <span class="chip c-lose">v4 は育つ ××</span></td><td>元 余韻 −0.007→+0.008→+0.024→+0.059→+0.078→+0.105→+0.116（本）、見られ分け 0.19→0.30（4000 で頭打ち）。育つ 30・30、頭打ち後 30・30、遅れて 26・27。v4 余韻 −0.01 前後のまま（16・13）</td></tr>
+        <tr><td class="v">S188</td><td><b>なぐさめ</b>（新章）：見られ分けの世界に 仲間の空腹が見え・手3 で減らせる口、v4 kE0／共感（苦しさの減り×50）（各 30世界）</td><td><span class="chip c-win">共感でなぐさめが増える・相手が楽になる ○○</span> <span class="chip c-lose">困った子を選ぶ ××（共感なし・あり）</span></td><td>困っている−いない kE0 −0.009・−0.003（11・14）、kE50 +0.008・−0.002（18・13）。仲間の前の手3 0.253・0.270→0.344・0.352（30・30）、相手の空腹 0.154・0.150→0.119・0.118（30・28）。調整：共感を「空腹の減り」で測る形では困り具合で重みが変わらず、「苦しさ h² の減り」に変えたが選び分けは出ない</td></tr>
+        <tr><td class="v">S189</td><td><b>泣いている子</b>：S188 に 泣き（毎手 1% で空腹が 0.8 に）、泣き kE0／泣き kE50／泣きなし kE50（各 30世界）</td><td><span class="chip c-win">選ぶ・共感のおかげ ○○</span> <span class="chip c-lose">泣きのおかげ ○× ・共感なしで選ぶ ××</span></td><td>泣いている−いない（相手の空腹 >0.5）：泣き kE50 +0.043・+0.037（28・28）、泣き kE0 −0.004・+0.004（11・17）、なし kE50 −0.025・+0.009。共感のおかげ 29・23、泣きのおかげ 26・19。調整：泣き 0.02 はふだんから困っている（>0.5 が 6割）ので下げた</td></tr>
+        <tr><td class="v">S190</td><td><b>なぐさめの代価</b>：S189（泣き1%・共感 kE50）で なぐさめると自分の空腹 +0.03（代価0／0.03・各 30世界）</td><td><span class="chip c-win">減る・それでも選ぶ・絞る ○○</span> <span class="chip c-lose">差が大きくなる ××</span></td><td>仲間の前の手3 0.485・0.466→0.289・0.285（30・30）、泣いている−いない +0.045・+0.052（>0 30・30）、比 1.08・1.11→1.18・1.21（24・25）、差が代価0 より大 19・16。仲間の空腹 >0.5 0.23→0.44、食べ 0.060→0.062</td></tr>
+        <tr><td class="v">S191</td><td><b>お返し</b>：S190 の世界のまま、なぐさめてくれた子に 100手以内に見られた時と それ以外の時（同じ相手）の なぐさめ（kE0／kE50・各 30世界）</td><td><span class="chip c-lose">3つとも ××</span></td><td>恩あり−なし kE50 −0.003・+0.006（>0 13・19、>0.02 8・10）、kE0 −0.001・−0.004（14・11）。恩ありの手数 約5000〜6700</td></tr>
+        <tr><td class="v">S193</td><td><b>感謝とお返し</b>：S190 に 恩の記憶（相手の顔・毎手0.98倍）・恩人らしさの入力・感謝（恩人をなぐさめると共感 ×(1＋kG·恩人らしさ)）、入力だけ（kG0）／kG1（各 30世界）</td><td><span class="chip c-win">感謝でお返し・感謝のおかげ ○○</span> <span class="chip c-lose">情報だけ ××</span></td><td>お返し kG1 +0.143・+0.120（>0.02 30・28）、kG0 +0.022・+0.019（16・14・線すれすれ）、kG1>kG0 30・30。調整：kG3 +0.514。事前登録は本計測の前にコミット（S192 の反省）</td></tr>
+        <tr><td class="v">S194</td><td><b>仲良しの組</b>：S193 の世界のまま、なぐさめの割合の表 R[i,j] から 組のそろい方（相関）と なぐさめ先の偏り（上位2人）（kG0／kG1・各 30世界）</td><td><span class="chip c-win">組ができる・感謝のおかげ ○○</span> <span class="chip c-lose">親友 ××</span></td><td>相関 kG1 +0.434・+0.342（30・27）、kG0 −0.053・−0.035（おかげ 28・26）、偏り 0.394・0.394 対 0.386・0.388（16・16）。調整：kG3 相関 +0.761</td></tr>
+        <tr><td class="v">S195</td><td><b>恩を長く覚える</b>：S193 の世界に 恩の薄れ方 0.98／0.998（kG1・各 30世界）</td><td><span class="chip c-win">組がそろう ○○</span> <span class="chip c-lose">親友 ×○</span></td><td>相関 0.459・0.428→0.722・0.623（22・22）、偏り 0.393・0.401→0.399・0.434（19・25）。調整：0.9995 は偏り 0.425（6/10）。途中、数え.py の return くっつきを直した（S193 と同じ誤り）</td></tr>
+        <tr><td class="v">S196</td><td><b>一緒にいる相手を選ぶ</b>：S193 に 寄る（仲間の番で恩人に見られやすく ∝exp(β·似)）、β0 kG1／β0.3 kG0／β0.3 kG1（各 30世界）</td><td><span class="chip c-win">4つとも ○○</span></td><td>会う偏り 0.310・0.311／0.433・0.442／0.705・0.730、なぐさめ先の偏り 0.398・0.395／0.406・0.403／0.485・0.535、相関 0.42・0.49／0.15・0.19／0.37・0.38。H1 30・30、H2 29・29、H3 28・28、H4 30・30。調整：β≥2 は2人に固まる、相関は会った組だけに直した</td></tr>
+        <tr><td class="v">S197</td><td><b>両思いで長続き</b>：S196 の世界のまま、一番の相手（会う回数）が互いに一番か・前後半で同じか（β0 kG1／β0.3 kG0／β0.3 kG1・各 30世界）</td><td><span class="chip c-win">両思い・長続き・寄るおかげ・感謝のおかげの両思い ○○</span> <span class="chip c-lose">感謝のおかげの長続き ×○</span></td><td>両思い 0.00・0.25／0.25・0.25／0.50・0.50、長続き 0.125・0.25／0.625・0.625／0.81・0.75。H1 30・30、H2 30・30、H3 27・27、H4 21・23、H5 19・20（偶然 1/7）</td></tr>
+        <tr><td class="v">S198</td><td><b>人気者と仲間はずれ</b>：S196 の世界のまま、誰の一番でもない子（外れ）の空腹・なぐさめてもらった回数（β0 kG1／β0.3 kG0／β0.3 kG1・各 30世界）</td><td><span class="chip c-win">外れは空腹・なぐさめが届かない・寄るせい ○○</span> <span class="chip c-lose">外れが増える ××</span></td><td>空腹差 −0.025・+0.022／+0.055・+0.066／+0.217・+0.212、なぐさめてもらった差 +19・−1／−114・−108／−486・−440。外れの数 3・3／4・4／2.5・2。H1 29・29、H2 29・29、H3 28・28、H4 10・9</td></tr>
+        <tr><td class="v">S199</td><td><b>困っている子にも寄る</b>：S196 に 選び直しの重み ＋γ·相手の空腹（γ0／γ5・β0.3 kG1・各 30世界）</td><td><span class="chip c-win">外れの害が減る・届く・みんな楽 ○○</span> <span class="chip c-lose">親友が弱まる ××（引き換え無し）</span></td><td>外れの空腹差 +0.167・+0.224→+0.068・+0.068（25・26）、なぐさめてもらった差 −484・−513→−259・−239（23・26）、全体の空腹 0.418・0.404→0.332・0.303（29・29）、会う偏り 0.70・0.73→0.71・0.71（15・17）、両思い 0.50・0.75→0.75・0.75（5・5）。途中、注釈が w = np.cumsum(...) を飲み込む誤りを γ0 の sha 不一致で見つけて直した</td></tr>
+        <tr><td class="v">S200</td><td><b>転入生</b>：S199 に 4000手で子0 を新しい子（頭・顔とも新しい）に入れ替え（γ0／γ5 × 入れ替えなし／あり・各 30世界）</td><td><span class="chip c-lose">4つとも 割れ・×（○×・○×・○×・××）</span></td><td>なぐさめてもらった差 γ0 なし +67・−237／転入 −267・−205、γ5 なし −55・−78／転入 −242・−95。H1 25・14、H2 22・17、H3 21・13、H4 17・17。子ごとのばらつきが大きい</td></tr>
+        <tr><td class="v">S201</td><td><b>転入生を何度も</b>：3000〜7000手に1000手ごと 子0〜4 を順に新しい子に、来てから1000手を同じ時間の古株と比べる（γ0／γ5・各 30世界）</td><td><span class="chip c-win">届かない・選ばれにくい・γ5 でも ○○</span> <span class="chip c-lose">γ5 で助かる ○×</span></td><td>なぐさめてもらった差 γ0 −136・−127（30・29）、γ5 −106・−136（30・30）、入り次数の差 γ0 −0.73・−0.73（27・25）、γ5 −0.42・−0.45。γ5>γ0 22・15</td></tr>
+        <tr><td class="v">S202</td><td><b>転入生はなじむか</b>：2000〜5000手に 子0〜3 を順に新しい子に、来てから 0〜1000／1000〜2000／2000〜3000 を古株（子4〜7）と比べる（γ0・各 30世界）</td><td><span class="chip c-win">輪になじむ・なじみきらない ○○</span> <span class="chip c-lose">なぐさめも届く ×○</span></td><td>入り次数の差 −0.56→−0.47→−0.25・−0.38→−0.13→−0.03（20・22）、なぐさめてもらった差 −115→−99→−86・−96→−90→−66（18・22）、2000〜3000 で <0 26・22。最初の走りは集計の数の型で JSON 書き出しが落ち、直して走らせ直した</td></tr>
+        <tr><td class="v">S203</td><td><b>親切な転入生</b>：S202 の作りで 転入生がなぐさめた時の共感量を3倍（親切1／3・各 30世界）</td><td><span class="chip c-win">よくなぐさめる・やがて助けてもらえる ○○</span> <span class="chip c-lose">すぐなじむ ○×・やがて一番 ×○</span></td><td>手3 0.228・0.237→0.299・0.302（28・27）、なぐさめてもらった差（2000〜3000）−98・−108→−10・+39（27・27）、入り次数の差 0〜1000 −0.69・−0.53→−0.38・−0.41（20・19）、2000〜3000 −0.28・−0.31→+0.06・+0.38（19・20）</td></tr>
+        <tr><td class="v">S204</td><td><b>親切の見返り</b>：S199（γ0）で 子0〜3 だけ共感量3倍、同じ種の全員1倍と差を比べる（各 30世界）</td><td><span class="chip c-win">よくなぐさめる・助けてもらえる ○○</span> <span class="chip c-lose">一緒にいてもらえる・お腹が空く ××</span></td><td>なぐさめた差 +0.03・−0.01→+0.18・+0.18（28・29）、なぐさめてもらった差 +35・−37→+148・+56（23・20）、入り次数の差 0.5・0→0.5・0（8・10）、空腹の差 −0.035・+0.021→−0.003・+0.080（15・19）</td></tr>
+        <tr><td class="v">S205</td><td><b>親切は広がるか</b>：S204 に 選び替え（2000手から500手ごと、一番お腹を空かせた子→新しい子、型は一番よく食べている子から）、はじめ親切4（kG1／kG0・各 30世界）</td><td><span class="chip c-lose">3つとも ××</span></td><td>終わりの親切数 kG1 4.0・4.5／kG0 4.0・4.5。減る 14・13、残る 14・11、広がる 13・16。調整の 9/10 は偶然（漂流が大きい）</td></tr>
+        <tr><td class="v">S206</td><td><b>親切の損得</b>：S204 に kG を足し、入れ替えずに 親切3−親切1 の差（子0〜3−子4〜7）を kG1／kG0 で（各 30世界）</td><td><span class="chip c-win">感謝なしでも返る ○○</span> <span class="chip c-lose">損（空腹）・感謝で損が小さい ××</span></td><td>空腹の差 kG0 −0.008・−0.036（13・13）、kG1 +0.027・−0.022（19・14）、kG0>kG1 11・13。なぐさめてもらった kG0 +332・+389（27・30）、kG1 +97・+186</td></tr>
+        <tr><td class="v">S207</td><td><b>寄らないと親切は損か</b>：S206 の作りで β0（誰とでも同じだけ会う）、kG1／kG0 × 親切1／3（各 30世界）</td><td><span class="chip c-win">4つとも ○○</span></td><td>空腹の差 kG0 +0.148・+0.154（30・30）、kG1 +0.081・+0.071（27・26）、なぐさめてもらった kG0 +5・−5／kG1 +45・+33（21・25）、損 kG0>kG1 24・27</td></tr>
+        <tr><td class="v">S208</td><td><b>損な親切は減るか</b>：S205 の選び替えを β0・寿命16000・250手ごと（56回）で、kG0／kG1／対照（印だけ・親切1）（各 30世界）</td><td><span class="chip c-win">減る（感謝なし・あり）・損のせい ○○</span> <span class="chip c-lose">感謝で遅い ××</span></td><td>終わり 0 人の世界 kG0 30・30、kG1 29・30、対照 9・18（対照の中央値 7.06・0）。対照>kG1 20・12（線 10）、中ほど kG1>kG0 6・4。追試は `&` で起動して通知が来ず、予約で確かめた</td></tr>
+        <tr><td class="v">S209</td><td><b>寄れば親切は生き残るか</b>：S208 の作りで β0.3、β0.3 親切／β0.3 対照（印だけ）／β0 親切（kG1・各 30世界）</td><td><span class="chip c-win">残る・寄るおかげ ○○</span> <span class="chip c-lose">有利に広がる ××</span></td><td>終わり（中央値・0人の世界）β0.3 親切 6.0・5／2.75・7、β0.3 対照 4.38・8／3.25・6、β0 親切 0・29／0・29。H1 25・23、H2 25・23、H3 14・14</td></tr>
+        <tr><td class="v">S210</td><td><b>親切どうしが寄り合う</b>：S205 の世界に 同類（寄る時に同じ型 +δ）、δ2 親切／δ2 対照／δ0 親切（β0.3・kG1・寿命16000・各 30世界）</td><td><span class="chip c-lose">3つとも ××</span></td><td>終わり（中央値・0人の世界）δ2 親切 4.75・6／5.06・6、δ2 対照 4.12・4／4.62・3、δ0 親切 3.81・8／4.38・2。H1 13・10、H2 15・14、H3 18・17</td></tr>
+        <tr><td class="v">S211</td><td><b>評判で寄る</b>：S210 の世界に 評判（寄る重みに +ρ·相手のなぐさめた割合・500手で薄れる）、β0／β0.3 × ρ5 親切／ρ5 対照／ρ0 親切（kG1・寿命16000・各 30世界）</td><td><span class="chip c-win">4つとも ○○</span></td><td>終わり（中央値・0人の世界）β0ρ5 親切 8・1／8・3、β0ρ5 対照 3.81・4／4.31・2、β0ρ0 親切 0・30／0・29、β0.3ρ5 親切 8・1／8・1、対照 4.12・5／4.06・7。H1 23・21、H2 29・26、H3 27・26、H4 21・20</td></tr>
+        <tr><td class="v">S212</td><td><b>見られている時だけ（観客効果）</b>：S211 の世界に 観客（相手以外が自分を見ている）の入力と、評判を観客がいる時だけ付ける口。観客入力・見られ評判／観客入力・いつも評判／入力なし・見られ評判（β0・ρ5・親切3・各 30世界）</td><td><span class="chip c-lose">見せかけ ××・広がる ○○</span></td><td>同じ子の中の差（観客あり−なし）中央値 −0.0006・+0.0015、H1 14・17、H2 13・13、H3 13・20、H4 26・25。まとめた差は 全腕 +0.26〜0.32（30/30）＝子の違いの混ざり（前提の訂正）</td></tr>
+        <tr><td class="v">S213</td><td><b>見せかけの型</b>：S212 の世界で型を3種（いつも親切・見せかけ＝観客がいる手だけ共感3倍・親切でない、はじめ 2・2・4）を選び替えで受け継ぐ。見られ評判／いつも評判（β0・ρ5・各 30世界）</td><td><span class="chip c-lose">見せかけ勝たない ××</span></td><td>終わり中央値（いつも・見せ）見られ評判 2.75・2.38／4.88・1.62、いつも評判 4.25・1.75／7.0・0.5。H1 13・11、H2 16・20、H3 15・19</td></tr>
+        <tr><td class="v">S214</td><td><b>見せかけは得か</b>：S213 の世界で選び替えなし（型は一生固定・いつも親切2・見せかけ2・親切でない4、席を入れ替えた2一生の平均）、後半の型ごとの空腹。見られ評判／いつも評判（各 30世界）</td><td><span class="chip c-lose">見せかけ得 ××・親切は得 ○○</span></td><td>空腹中央値（見せ・いつも・親切でない）見られ評判 0.330・0.290・0.483／0.374・0.298・0.491。H1 14・10、H2 18・22、H3 27・30</td></tr>
+        <tr><td class="v">S215</td><td><b>私的な評判</b>：S213 の世界に 私的（i が j を自分で見た手だけ i の表の j を更新・1/70）。選び替えなし・親切4・親切でない4（席を入れ替えた2一生）、共有評判／私的評判／評判なし（β0・ρ5・各 30世界）</td><td><span class="chip c-win">私的でも得 ○○・共有より大 ○○</span></td><td>得（親切でない−親切の空腹）中央値 共有 +0.154・+0.168、私的 +0.194・+0.223、評判なし −0.053・−0.050。H1 28・28、H2 29・29、H3 5・5、H4 25・25</td></tr>
+        <tr><td class="v">S216</td><td><b>受けたか見たか</b>：S215 の私的な表を 受けた分だけ（j の相手が i・1/35）／見た分だけ（i の相手が j で j の相手は i でない・1/35）に分ける。両方／受けた／見た／評判なし（各 30世界）</td><td><span class="chip c-win">どちらも得 ○○・受けたが強い ○○</span></td><td>得 中央値 両方 +0.233・+0.187、受けた +0.249・+0.248、見た +0.154・+0.142、なし −0.039・−0.062。H1 30・29、H2 29・24、H3 26・26、H4 19・23</td></tr>
+        <tr><td class="v">S217</td><td><b>噂</b>：S216 の見た分だけの私的な評判に 噂 g（i の相手が j の手に、i の表を j の表へ g だけ寄せる）。噂なし／噂0.01／噂0.05／共有（各 30世界）</td><td><span class="chip c-lose">表は正しく ○○・得は増えない ××</span></td><td>得 中央値 噂なし +0.147・+0.150、0.01 +0.132・+0.119、0.05 +0.136・+0.123、共有 +0.178・+0.191。表の相関 0.877→0.930・0.906→0.941。H1 16・9、H2 15・9、H3 25・25、H4 18・20</td></tr>
+        <tr><td class="v">S218</td><td><b>なぜ得が増えないか</b>（数えるだけ・S217 と同じ sha）：噂なし／噂0.01／共有 で、寄る先が親切な子の割合・受けたなぐさめ・型どうしのなぐさめ（各 30世界）</td><td><span class="chip c-lose">噂は流れを変えない ××</span></td><td>親切へ寄る割合 0.712→0.713・0.780→0.777、受けた差 0.264→0.269・0.335→0.323。H1 13・17、H2 9・14</td></tr>
+        <tr><td class="v">S219</td><td><b>嘘つきの噂</b>：S217 の世界に 嘘つき（親切でない子1人が噂で表を逆さに伝える）。見た分だけ・噂0.05 で 嘘つきなし／嘘つき1人／噂なし（各 30世界）</td><td><span class="chip c-win">4つとも ○○</span></td><td>得 中央値 嘘つきなし +0.122・+0.120、嘘つき +0.071・+0.060、噂なし +0.138・+0.137。表の相関 0.953→0.727・0.930→0.728。H1 27・24、H2 30・28、H3 30・26、H4 24・25</td></tr>
+        <tr><td class="v">S220</td><td><b>嘘を見抜く</b>：S219 の世界に 信用（話し手ごと・1−2·平均|伝えた値−自分の値| へ 1/20・噂の強さ×信用）。嘘つき・信用なし／嘘つき・信用あり／嘘つきなし（各 30世界）</td><td><span class="chip c-lose">見抜く ○○・害は残る ××</span></td><td>嘘つきへの信用 0.694・0.779 対 正直 0.966・0.965。得 +0.066→+0.078・+0.046→+0.050（嘘つきなし +0.109・+0.129）。H1 20・16、H2 17・17、H3 30・30、H4 10・4</td></tr>
+        <tr><td class="v">S221</td><td><b>並び方で見抜く</b>：S220 の信用を 伝えた表と自分の表の相関 で測る口。嘘つき・差の信用／嘘つき・並びの信用／嘘つきなし（各 30世界）</td><td><span class="chip c-win">見抜く・得が戻る ○○</span></td><td>嘘つきへの信用 −0.986・−0.982（差 0.675・0.742）、正直 0.988・0.979。得 並び +0.128・+0.116、差 +0.077・+0.071、なし +0.136・+0.108。H1 30・30、H2 26・24、H3 16・13（同点付近）、H4 30・30</td></tr>
+        <tr><td class="v">S222</td><td><b>狙い撃ちの悪口</b>：S221 の世界に 悪口（嘘つきが標的の欄だけ 0 と伝え、他は正直）。並びの信用ありで 悪口あり／悪口なし（各 30世界）</td><td><span class="chip c-win">4つとも ○○（見抜けない）</span></td><td>標的の損 +0.339・+0.344 対 +0.021・−0.014。嘘つきへの信用 0.983・0.981。標的の評判差 −0.341・−0.352。H1 29・28、H2 29・30、H3 29・29、H4 28・30</td></tr>
+        <tr><td class="v">S223</td><td><b>自分の目を信じる</b>：S222 の世界に 欄ごとのふるい τ0.05（|伝えた値−自分の値| > τ の欄は取り込まない）。悪口・ふるいなし／悪口・ふるい／悪口なし・ふるい／悪口なし・噂なし（各 30世界）</td><td><span class="chip c-win">4つとも ○○</span></td><td>標的の損 +0.350→−0.017・+0.316→+0.034、評判差 −0.355→−0.009・−0.341→−0.034、嘘つきへの信用 0.983→0.276・0.982→0.382、悪口なしの表の相関 0.938・0.930（噂なし 0.867・0.897）。H1 30・29、H2 30・28、H3 26・26、H4 30・30。τ0.2 は効かない（前提の訂正）</td></tr>
+        <tr><td class="v">S224</td><td><b>頑固さの代価</b>：S223 の世界に 変身（t=8000 に親切でない子1人が親切に）。悪口なし・並びの信用で 噂なし／噂のみ／噂＋ふるい0.05（各 30世界）</td><td><span class="chip c-lose">偏見は生まれない ××</span></td><td>追いつく手数 中央値 ふるい 2750・2350、噂のみ 2375・2625、噂なし 2425・2850。空腹 0.503・0.505 対 0.499・0.483。H1 14・12、H2 14・11、H3 13・18、H4 16・16</td></tr>
+        <tr><td class="v">まとめ</td><td><b>S200〜S224 の章のまとめ</b>：転入生→親切の進化→評判→噂・嘘・悪口と守り</td><td><span class="chip c-win">評判で親切が勝つ・自分の目で悪口を防ぐ</span></td><td>親切が広がるのは評判がある時（S211）。噂は知識を正しくするが行動は変えない（S217・S218）。嘘は並びで見抜け（S221）、狙い撃ちの悪口は自分の目を信じるふるいで防げる（S223）。見せかけ・値の差での見抜きは出ない</td></tr>
+        <tr><td class="v">S225</td><td><b>公平（新章）</b>：S224 の世界に 受けた量（受け手×与え手・0.99 倍で薄れる）と、相手が自分以外から受けた量を見せる入力。v4＋共感・泣き・代価・感謝、入力あり／なし（各 30世界）</td><td><span class="chip c-lose">公平は出ない ××</span></td><td>少ない−多い 中央値 −0.067・−0.054（入力なし −0.070・−0.047）。H1 1・2、H2 15・14。自分の分を入れると −0.18（作りの訂正）</td></tr>
+        <tr><td class="v">S226</td><td><b>公平の気持ち</b>：S225 の世界に 公平の報酬 kQ5（なぐさめた相手の受けた量が平均より少ないほどうれしい）。kQ0／kQ5（各 30世界）</td><td><span class="chip c-win">4つとも ○○</span></td><td>少ない−多い +0.039・+0.043（kQ0 −0.053・−0.054）、変動係数 0.122→0.058・0.115→0.051、空腹のばらつき 0.051→0.037・0.048→0.037。H1 26・27、H2 30・30、H3 30・29、H4 26・24</td></tr>
+        <tr><td class="v">S227</td><td><b>言葉が要る世界（言葉の章の最初）</b>：新しい世界。毎手 4組の話し手（場所が見える・合図を出す）と聞き手（合図だけ見て場所を選ぶ）。v4＋共感。本／聞き手も見える／共感なし（各 30世界）</td><td><span class="chip c-win">弱い意味が付く ○○</span><span class="chip c-lose">共感のおかげ ○×・××</span></td><td>当たり率 0.364・0.353（偶然 0.25）、結びつき 0.151・0.139 ビット（見える 0.102・0.086、共感なし 0.110・0.130）。H1 29・30、H2 20・24、H3 20・16、H4 17・18</td></tr>
+        <tr><td class="v">S228</td><td><b>二人だけの言葉</b>：S227 の世界に 組み方（毎回／固定・役も固定／固定・役交代）。共感あり（各 30世界）</td><td><span class="chip c-win">役交代で当たる ○○</span><span class="chip c-lose">言い方ははっきりしない ××</span></td><td>当たり 毎回 0.359・0.350、役交代 0.530・0.515、固定 0.334・0.332。話し手ごとの結びつき 0.779・0.783／0.762・0.700／0.049・0.048。H1 0・0、H2 9・6、H3 30・30、H4 13・7、H5 30・30</td></tr>
+        <tr><td class="v">S229</td><td><b>自分の耳で話す</b>：S228 の世界（毎回組み替え）に 話し方＝耳（自分が聞き手なら場所 L を選ぶ合図を出す）。ふつう／耳／耳・共感なし／耳・聞き手も見える（各 30世界）</td><td><span class="chip c-win">5つとも ○○（言葉がそろう）</span></td><td>一致 0.268→1.000・0.263→1.000、全体 0.151→1.497・0.125→1.497 ビット、当たり 0.357→0.858・0.344→0.857。共感なしでも 1.499（理由を飛ばす口）、見える世界では 0.111・0.084。H1〜H5 すべて 30・30</td></tr>
+        <tr><td class="v">S230</td><td><b>言葉の習得</b>：S229 の世界に 転入（t=8000 に子0 を生まれたての頭に）。耳で話す／ふつう（各 30世界）</td><td><span class="chip c-win">4つとも ○○</span></td><td>新入りの言い方の一致 耳 1.000・1.000、ふつう 0.25。聞き取り 来てすぐ 0.771・0.745→最後 0.856・0.859。H1〜H4 すべて 30・30</td></tr>
+        <tr><td class="v">S231</td><td><b>方言</b>：S230 の世界（耳で話す）に 群れ（子0〜3／4〜7、確率 m だけ群れをまたいで組む）。m0.02／m0.5（各 30世界）</td><td><span class="chip c-win">3つとも ○○</span></td><td>群れどうしの一致 m0.02 0.25・0.25、m0.5 1.0・1.0。またぐ当たり 0.215・0.242（中 0.858）。H1 30・30、H2 29・27、H3 30・30</td></tr>
+        <tr><td class="v">S232</td><td><b>文化の継承</b>：S231 の世界（群れなし）に 入れ替え（t=2000 から500手ごとに一番古い子を生まれたてに・28人）。耳／ふつう（各 30世界）</td><td><span class="chip c-win">3つとも ○○</span></td><td>最初の言葉との一致 耳 1.0（1.0 の世界 29・28）、ふつう 0.25。最後の当たり 0.806・0.804。H1 29・28、H2 29・30、H3 30・30</td></tr>
+        <tr><td class="v">まとめ</td><td><b>S225〜S232（公平・言葉の前半）</b></td><td><span class="chip c-win">言葉がそろい・覚えられ・方言になり・受け継がれる</span></td><td>公平には公平の気持ちが要る（S226）。言葉が要る世界で弱い意味（S227）、弱さはそろわないせい（S228）、耳で話すと全員同じ言葉（S229）、新入りが覚え（S230）、方言（S231）、世代を越える（S232）。話す理由との結びつきは未解決</td></tr>
+        <tr><td class="v">S233</td><td><b>耳の型は増えるか</b>：S232 の世界に 話し方を型に（耳の子／ふつうの子、選び替えで受け継ぐ）。共感あり／なし、と型固定の空腹（各 30世界）</td><td><span class="chip c-lose">増えずに消える</span></td><td>終わりの耳の子 0・0（0 の世界 28・26）。空腹 ふつう−耳 −0.005・−0.0047（30・30 で耳が損）。H1 0・3、H2 2・4、H3 0・0、H4 30・30、H5 28・26</td></tr>
+        <tr><td class="v">S234</td><td><b>評判で組む</b>：S233 の世界に 組評判 ρ5（互いに当てさせてくれた子どうしが組みやすい）。選び替えの耳の子の数と、型固定の空腹（各 30世界）</td><td><span class="chip c-win">耳の子が増える ○○</span><span class="chip c-lose">固定での得 ×○</span></td><td>終わりの耳の子 5.25・5.31（ρ0 は 0）、耳どうしの組 0.246・0.253（ρ0 0.214）、空腹差 −0.0002・+0.0021。H1 24・25、H2 26・28、H3 14・22、H4 29・26</td></tr>
+        <tr><td class="v">S235</td><td><b>組み合わせる言葉（文法の芽）</b>：新しい世界。16か所（4行×4列）、話し手は合図を2つ、聞き手は行→列の順に選ぶ。対角4か所は最後の4000手だけ。耳／ふつう（各 30世界）</td><td><span class="chip c-win">言葉はできる ○○</span><span class="chip c-lose">未見は伝わらない ××</span></td><td>全体 2.39・2.45 ビット、当たり 0.59・0.61、組み立て度 1.29・1.29（ふつう 0.39・0.40）。未見の当たり 0.028・0.024（偶然 0.0625 より低い 29・30）。H1 30・30、H2 0・0、H3 17・16、H4 29・30</td></tr>
+        <tr><td class="v">S236</td><td><b>分けて聞く</b>：S235 の世界に 聞き方＝分けて（行は1つ目、列は2つ目の合図だけを聞く）。耳で話す、分けて／まとめて（各 30世界）</td><td><span class="chip c-win">3つとも ○○（未見も伝わる）</span></td><td>組み立て度 2.998・2.991（まとめて 1.271・1.302）、未見の当たり 0.778・0.771（まとめて 0.023・0.026）。H1〜H3 すべて 30・30。語順と語ごとのくせは頭に入れたもの</td></tr>
+        <tr><td class="v">S237</td><td><b>聞き方は受け継がれるか</b>：S236 の世界に 聞き方を型に（分けて聞く子／まとめて聞く子、選び替えで受け継ぐ）。耳で話す・16か所（各 30世界）</td><td><span class="chip c-win">3つとも ○○（増える）</span></td><td>終わりの分けて聞く子 4.75・4.75（>4 27・27）。当たり 0.754 対 0.725・0.745 対 0.703、空腹差 +0.0022・+0.0026。H1 27・27、H2 30・27、H3 30・28</td></tr>
+        <tr><td class="v">S238</td><td><b>得がぶつかる世界</b>：S232 の世界に 競う（聞き手が外すと話し手が食べる）。ふつうに話す、協力／競う（各 30世界）</td><td><span class="chip c-win">言葉が崩れる ○○</span></td><td>当たり 0.362→0.247・0.369→0.246、全体 0.152→0.020・0.154→0.020、話し手ごと 0.757→0.568・0.767→0.590。H1 30・30、H2 21・19、H3 28・30、H4 29・30、H5 30・30</td></tr>
+        <tr><td class="v">S239</td><td><b>評判で正直を守る</b>：S234 の世界（組評判）に S238 の競う。ふつうに話す、ρ0／ρ5（各 30世界）</td><td><span class="chip c-lose">言葉は戻らない ××</span></td><td>当たり 0.247→0.266・0.249→0.264（>0.30 0・0）、全体 0.024→0.020・0.021→0.019、話し手ごと 0.608→0.458・0.562→0.454。H1 29・29、H2 0・0、H3 15・14、H4 29・26</td></tr>
+        <tr><td class="v">S240</td><td><b>強い共感</b>：S238 の世界（競う）のまま 共感 kE 0／50／500（各 30世界）</td><td><span class="chip c-lose">3つとも ××（戻らない）</span></td><td>当たり 0.250・0.249・0.248／0.248・0.248・0.248。H1 11・19、H2 0・0、H3 18・15。わなの見当は未検証</td></tr>
+        <tr><td class="v">S241</td><td><b>わなの確かめ</b>：S238 の世界に 競い始め（8000手まで協力）。kE50／kE500（各 30世界）</td><td><span class="chip c-lose">わなの見当は外れ</span></td><td>当たり kE50 0.341→0.280・0.336→0.269、kE500 0.374→0.272・0.363→0.281。結びつき最後 0.200・0.209。H1 13・18、H2 5・5、H3 30・30、H4 29・27</td></tr>
+        <tr><td class="v">S242</td><td><b>食べ予測を止める</b>：S238 の世界のまま 頭の kf（食べ予測）を 3／0、kE 50／500、協力の対照（各 30世界）</td><td><span class="chip c-lose">共感では戻らない ××</span><span class="chip c-win">話し方は食べ予測が作る ○○</span></td><td>協力 kf3 当たり 0.358・0.357、協力 kf0 0.250・0.250（話し手ごと 0.054・0.069）。競う kf0kE500 0.249・0.249。H1 18・17、H2 0・0、H3 15・13、H4 30・30、H5 30・30</td></tr>
+        <tr><td class="v">S243</td><td><b>共感の見込み</b>：v2 に kC（話し手の時の手ごとに「相手が食べたか」を予測し点に足す）。S238 の世界、協力 kC0／10・競う kC0／3／10（各 30世界）</td><td><span class="chip c-win">話す理由から言葉が生まれる ○○</span><span class="chip c-lose">弱い見込みは負ける ××</span></td><td>当たり 協力 0.351→0.857・0.351→0.856、競う 0.246→0.856・0.249→0.857（kC3 0.265・0.265）。全体 1.49 ビット。H1 30・30、H2 30・30、H3 30・30、H4 0・0</td></tr>
+        <tr><td class="v">S244</td><td><b>決まりなしの言葉の習得</b>：S243 の世界・頭（kC10・ふつうに話す）で 転入／群れ m0.02／入れ替え（各 30世界）</td><td><span class="chip c-win">覚える・方言・通じる ○○</span><span class="chip c-lose">そのまま残る ××</span></td><td>新入り 1.0・1.0、群れどうし 0.25・0.25（中 0.97・1.0）、最初の言葉との一致 0.875・0.75、最後の当たり 0.796・0.792。H1 30・30、H2 28・28、H3 15・13、H4 30・28、H5 15・17</td></tr>
+        <tr><td class="v">S245</td><td><b>決まりなしの組み合わせ</b>：S236 の世界（16か所・合図2つ）に S243 の共感の見込み kC10、ふつうに話す。分けて／まとめて聞く（各 30世界）</td><td><span class="chip c-win">4つとも ○○（弱め）</span></td><td>組み立て度 1.577・1.536（まとめて 0.664・0.705）、未見 0.235・0.212（まとめて 0.023・0.026、耳＋分けて S236 0.78）。H1 30・30、H2 20・20、H3 30・30、H4 27・29</td></tr>
+        <tr><td class="v">S246</td><td><b>語ごとの手応え</b>：S245 の世界に 学び方＝分けて（合図ごとに行・列が通じたかで共感の見込みを学ぶ）。分けて聞く・kC10、両方／分けて学ぶ（各 30世界）</td><td><span class="chip c-win">3つとも ○○</span></td><td>未見 0.214→0.670・0.187→0.701、当たり 0.360→0.609・0.391→0.725、組み立て度 2.62・2.91。H1 30・30、H2 23・27、H3 27・30</td></tr>
+        <tr><td class="v">S247</td><td><b>語順の取り違え</b>：S246 の世界に 逆組（子4〜7 は聞き手の時に語順が逆）。皆同じ／半分逆（各 30世界）</td><td><span class="chip c-win">伝わらなくなる ○○</span><span class="chip c-lose">話し手は合わせない ××</span></td><td>未見 0.688→0.217・0.704→0.207、当たり 0.643→0.349・0.691→0.346。語順の度合い 子0〜3 0.83・0.80／子4〜7 0.94・1.00。H1 30・30、H2 30・30、H3 1・5</td></tr>
+        <tr><td class="v">S248</td><td><b>語順がそろう</b>：S247 の世界に 選び替え（語順を受け継ぐ）。はじめ逆4・ふつう4（各 30世界）</td><td><span class="chip c-win">3つとも ○○</span></td><td>逆の子 4→0（30・30）、当たり 0.196→0.631・0.206→0.637。そろう向きは頭の作りで決まっている</td></tr>
+        <tr><td class="v">まとめ</td><td><b>言葉の章の後半（S238〜S248）</b></td><td><span class="chip c-win">話す理由から言葉・語ごとの手応え・語順</span></td><td>得がぶつかると崩れ、評判や強い共感では戻らない（S238〜S241）。原因は話し方を食べ予測が作っていたこと（S242）。共感の見込みで決まりなしの言葉・正直（S243）、習得・方言・継承（S244）、組み合わせ（S245）、語ごとの手応えで強く（S246）、語順の約束（S247・S248）</td></tr>
+        <tr><td class="v">S249</td><td><b>足して聞く（調整のみ）</b>：語順を頭に入れず、1つ目・2つ目の合図を別々に聞いて足す頭（10世界）</td><td><span class="chip c-lose">発火せず・本計測せず</span></td><td>未見 0.032（偶然より下）、語順はばらばら。言葉の章はここで区切る。次は「数の感覚」</td></tr>
+        <tr><td class="v">S250</td><td><b>数の感覚（新章）</b>：新しい世界。左右に 1〜16 個（32次元の点・並びはでたらめ・雑音 0.3）、多いほうを選ぶと多く食べる。v4・共感なし（各 30世界）</td><td><span class="chip c-win">多いほうを選ぶ ○○</span><span class="chip c-lose">比で決まる ××</span></td><td>全体 0.846・0.847、比0.5 0.907・0.906、比0.75 0.790・0.787、4対8 0.856・0.846、8対16 0.945・0.947、12対16 0.877・0.876。H1 30・30、H2 5・2、H3 0・0、H4 30・30</td></tr>
+        <tr><td class="v">S251</td><td><b>ぼやけが比例する</b>：S250 の世界に 比例（見える個数が数に比例してぶれる w0.25・雑音0）。ふつう／比例（各 30世界）</td><td><span class="chip c-win">比に近づく ○○</span><span class="chip c-lose">比だけでは決まらない ××</span></td><td>4対8・8対16・12対16 比例 0.821・0.873・0.686／0.824・0.870・0.695（ふつう 0.844・0.942・0.873）。H1 15・14、H2 30・30、H3 29・27</td></tr>
+        <tr><td class="v">まとめ</td><td><b>言葉の章（S227〜S237）</b></td><td><span class="chip c-win">必要→そろう→覚える→方言→継承→理由→組み合わせ</span></td><td>言葉が要る世界で弱い意味（S227）、弱さはそろわないせい（S228）、耳で話すとそろう（S229）、新入りが覚え（S230）、方言（S231）、世代を越え（S232）、話す型は評判が無いと消え（S233）評判で増える（S234）、まとめて聞くと丸覚え（S235）、語ごとに聞くと組み合わせ（S236）、そのくせは増える（S237）</td></tr>
+        <tr><td class="v">S192</td><td><b>一番の赤ちゃん v8</b>＝v4＋見て学ぶ＋共感：見本・なぐさめの無い世界で v4 と同じ手か（7世界×種3・8000手）、なぐさめの世界で S189 と、見て学ぶ世界で v7 と同じか</td><td><span class="chip c-win">全部同じ</span></td><td>v8＝v4 21/21（対照 v4≠元 21/21）、なぐさめの世界 一致、見て学ぶ世界 一致。※事前登録の文書は確かめの後に書いた（判定は sha の一致）</td></tr>
+      </tbody>
+    </table></div>
+    <div class="ask">まとめ：<code>~/赤ちゃんAI/リザバーの頭/見られ方の進み_20261118.md</code>。D111（Adam の全リセット）は全8仮説 不支持で確定。</div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="tag">NOW</span>いま進めているもの</h2>
+  <div class="now">
+    <div class="lab">問いの立て方を変えた（本人の決定・10/12 朝）</div>
+    <h3>この箱で、人間について報告された現象が出るか・出ないかを1つずつ確かめる</h3>
+    <p style="font-size:14px">本人：「今のまま、GRU や強化学習、継続学習の改造で、小さな箱と短い時間で人間と同じイコール形成を目指すなら、かなり無理に近い」。そこで問いを「人間と同じイコールを作る」から、<b>人間について報告された現象が、この箱で試した頭で出るか・出ないかの台帳を作る</b>に変えた。</p>
+    <ol>
+      <li><b>台帳 第2版</b>：<a href="台帳.html">人間の現象の台帳</a>。対応した4つ・出なかった4つ・線は越えたが大きさは人と比べられない1つ（自然回復・版21）・作れなかった1つ・箱の中で改善した2つ。</li>
+      <li>Codex の点検で「出なかった」と「人間との差」を分けた（作り方・物差し・人数のせいかもしれないので）。Claude を含む今のAI一般には広げない。</li>
+      <li>その前の「驚きの測り方を直す」（驚き v0）も、本計測の前の確かめで不合格（線6で3人中1人・線3で0人）。</li>
+    </ol>
+    <div class="ask"><b>版21（自然回復）：</b>人と同じ手順で測ると、線はぎりぎり越えた（+0.010・4/5）が、戻ったのは消した分の約1%。<br><b>版22：</b>小さな回復は新しい種でも再現（+0.02）。短く消すと置いてもさらに下がる（Rescorla 2004・人の研究1件とは逆向き。動物では逆の報告もある）。<br><b>版23（AB-AC）：</b>人と同じ形の課題で比べると、人は A-C を9割覚えても A-B が約52%残るのに、箱ではほぼ0＝人より多く失う。<br><b>版24：</b>書き足す頭（logだけ を耳に移したもの）でも人より多く失う（A-B 8〜10%）。A-C を約8割覚えた時点で 人 67%・書き足す頭 23%・今の頭 1%。<br><b>版25：</b>まとめをやめても、新しさの重みを外しても、A-B の残りは少ししか増えない（+0.05〜0.09）。原因の見当は、同じ手がかりの答えを呼び出しで1つに平均してしまうこと。<br><b>版26：</b>答えの種類ごとに呼び出す頭にしても残らない（0.10・見当は外れ）。縮めるときの記憶の枠の取り合いで、前の答えが1個に押し出されていた。<br><b>版27（統計的学習・Saffran 1996 と同じ形）：</b>8か月児は2分の音節の流れで単語を切り出すが、耳の頭は2分では出ず（5/10）、10分で出た（8/10。聞かせた時間の比は学ぶ速さの比ではないので「人の何倍」とは言わない）。<br><b>版28（回数をそろえた Aslin 1998 の形）：</b>出なかった。中身は逆向き（部分単語のほうを驚かない・0/10）。人は部分単語を新しいものとして長く聞く。物差しに音節の中の予想しやすさが混ざる疑い。<br><b>版27b・28b（つなぎ目だけで測り直し）：</b>版28 の逆向きはほとんど物差しの穴だった（5/10）。回数をそろえた形では長く聞いても差がはっきりせず、つながりの確率を使っているとはまだ言えない。<br><b>版28c（30人・135分まで）：</b>回数をそろえた形では出なかった（3分 12/30・45分 16/30）。学び手ごとには時間とともに強い向きを持つが、人によって逆向きで、平均は0に近い。流れの24%で部分単語が44回だった（「ちょうどそろう」は誤り・判定は変わらない）。<br><b>版29（学び手10人×音節の割り当て10通り）：</b>向きは学び手ではなく割り当てで決まっていた（ばらつきの99%・学び手は0%）。割り当てをそろえると効き目は0と区別できない（5/10）。<br><b>版30（温かさの実験をママ役4人×学び手5人で）：</b>こちらは学び手の種でもママの声でも決まらず、その組み合わせ（一人ひとりの経験）で散らばる（残り68〜73%）＝これまでの「5人」は独立の繰り返しとして数えてよい。自然回復はママの声を替えても4人とも出た（+0.010〜+0.030）。<br><b>版31（版29 の向きの正体・新しい割り当て50通り）：</b>向きはつなぎ目の音の段差で決まる（相関 −0.80）。聞くと、聞いた並びはどれも同じくらい当てられるようになり、最初の差が消える分が「効き目」に見えていた（ただし聞く前の差との相関 −0.92 は、数式上のつながりだけでもほぼ出る＝Codex）。つながりの確率はつなぎ目全体には残らない。<br><b>版32（版22・24〜26 をママ役3人で）：</b>「前の答えをほとんど失う」（版24〜26）は3人とも同じ。版22 の「寄るとは言えない」は 2/3（ママ004 では寄る）で、声によってどちらにも出る。<br><b>版33（人と同じ打ち消し方）：</b>同じ音を、役を入れかえた2つの言葉で聞かせると、1つ目のつなぎ目で 49/50＝<b>つながりの確率と合う向きに学んでいた</b>（予想は外れ）。Codex の点検で条件つき：前後の音節の回数や長い並びも一緒に入れかわるので「隣どうしの確率だけ」とは言えない。45分で出て15分では弱い。項目まるごとでは見えない。<br><b>版34（次の音節を聞く前の3コマだけ）：</b>+0.138・48/50 で同じ向き。確率が同じで回数だけ違うつなぎ目では、多く聞いた組をよく当てる（0/50・15分で既に）。測る場所で正負が逆になり、平均すると打ち消し合う（原因を「確率対回数」と決めたわけではない＝Codex）。<br><b>版35（Codex 指摘1）：</b>前の音節も後ろの音節も同じ90回の組どうしでも、境目の組のほうが当てにくい（48/50）＝音節の回数では説明できない。当てはめの係数は確率と組の回数で同じくらい（記述のための当てはめで、「同じ重さ」を示したわけではない）。<b>Codex の全体点検：条件つき</b>＝確率・回数の構造と合う予想の差は出るが、「単語を切り出した」「人との差」は未確定。<br><b>版36（独立した追試）：</b>新しい学び手3人・男性の声の音節・新しい割り当てでも、同じ向きで出た（49/50・45/50）。<br><b>版37（介入）：</b>組の回数・境目・後ろの音節・音を全部そろえ、前の語の回数だけを変えると、確率の低い組のほうがはっきり当てにくい（47/50）＝<b>組の回数ではなく、前の音節のあとの続きの分かれ方で予想している</b>。ただし確率に比例ではなく、一番多い続きがあると他は当てにくいまま（探索）。<br><b>次の候補：</b>台帳の「出なかった」の行を、人間と同じ物差しで比べられる形に1つずつ直していく。出典を確かめていない行（慣れ・般化・「ぱぱ」）の出典を足す。</div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="tag">FLOW</span>全体の流れ</h2>
+  <div class="flow">
+    <div class="root">
+      <div><span class="mono" style="color:var(--accent);font-weight:600;font-size:12px">版0</span>　<b>親とおむつと25通りの声</b>　<span class="chip c-lose">負け</span></div>
+      <p class="muted" style="font-size:13.5px">「ぱぱ」は言葉ではなく、親を呼ぶボタンとして覚えられた。→ 本人「じゃあ俺はママになる。子宮の中から」</p>
+    </div>
+
+    <div class="phase">
+      <div class="phase-h"><b>第1部　耳の実験（版1〜20）</b><span>音を「次に何が来るか」予想して育つ頭。体は無い。10/08〜10/11 朝。タグ <code>実験_版0から20</code> で固定</span></div>
+      <div class="lanes3">
+        <div class="lane">
+          <div class="lane-s">お腹の中の音</div>
+          <div class="node"><div class="v">版1・1b・5・7</div><div class="t">ママの声は届くか・いつまで残るか</div><div class="d">ママの声は覚えて生まれる（5/5）。ただし数時間で消える。</div></div>
+          <div class="node"><div class="v">版8・9</div><div class="t">本物に近いお腹の音</div><div class="d">段々に削った音なら効く（5/5）。効いたのは削り方で、体の音ではない。</div></div>
+          <div class="node"><div class="v">版11・14・総当たり1</div><div class="t">香港大学の再現を追う</div><div class="d">正解つきでも、抑揚で測っても、頭の作りを27通り変えても、低い音だけは高い音だけに勝てない。</div><div class="chips"><span class="chip c-lose">再現せず</span></div></div>
+          <div class="node"><div class="v">版15</div><div class="t">耳が開く時期（体の音だけ→声）</div><div class="d">どちらの向きとも判定できない。効いているのは声を聞いた量。</div></div>
+        </div>
+        <div class="lane">
+          <div class="lane-s">反応する・声を出す・結びつける</div>
+          <div class="node"><div class="v">版12・13</div><div class="t">生まれる前の反応</div><div class="d">ママと知らない人に違う反応（5/5）。「慣れ」は学び方の道具を続ければ出た（5/5）。</div></div>
+          <div class="node"><div class="v">版16</div><div class="t">自分の声を出して聞く（喃語）</div><div class="d">「人の声らしく」はなったが、「聞いた言葉らしく」はならなかった（0/5）。</div><div class="chips"><span class="chip c-lose">負け</span></div></div>
+          <div class="node"><div class="v">版17〜20</div><div class="t">ママの声と温かさを結びつける</div><div class="d">教えずに結びついた（5/5）。でも数歩で消える。人間のように「消えたように見えて残る」消え方はしない。</div><div class="chips"><span class="chip c-win">結びつく</span><span class="chip c-note">2.4分で消える</span></div></div>
+        </div>
+        <div class="lane">
+          <div class="lane-s">生まれつき（遺伝子）</div>
+          <div class="node"><div class="v">版2・3・4</div><div class="t">縮めた遺伝子 対 丸ごとコピー</div><div class="d">丸ごと（今のAIの作り方）が毎回勝つ。縮め方で大きく変わる。</div></div>
+          <div class="node"><div class="v">版6</div><div class="t">大きく・25世代</div><div class="d">判定外の発見：磨かれた小さい網が、11倍の網より良い。</div></div>
+          <div class="node"><div class="v">版10</div><div class="t">別の家系で判定に入れて確かめる</div><div class="d">再現した（5/5）。遠い世界では2家系で丸ごとにも勝った。</div><div class="chips"><span class="chip c-win">勝ち 5/5</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow">↓　耳だけでは「環境と結びつけるイコール」に届かない → 体と世界と行動の輪を作る（実装手順書 v0.2）</div>
+
+    <div class="phase">
+      <div class="phase-h"><b>第2部　成長できる箱（baby_ai/ STEP1〜5b）</b><span>世界・体・頭・行動・経験の閉じた輪。8つの行動で資源や親に近づき、生き延びる。10/11 昼</span></div>
+      <div class="lanes3">
+        <div class="lane">
+          <div class="node"><div class="v">STEP1</div><div class="t">体と小さな世界・記録・再現</div><div class="d">同じ種なら記録がバイト単位で一致。でたらめ 232歩・人が書いた決まり 462歩。</div></div>
+          <div class="node"><div class="v">STEP2</div><div class="t">自分で行動を選び、経験で変わる</div><div class="d">教えずに、人が書いた決まりと同じくらい生きた（468.5歩・5/5）。</div><div class="chips"><span class="chip c-win">学習した 5/5</span></div></div>
+        </div>
+        <div class="lane">
+          <div class="node"><div class="v">STEP3・3b</div><div class="t">時間と経験による成熟</div><div class="d">寝る時間を入れて、時間と経験を別々に動かせた。育つと新しいことの覚えが遅い（2.2倍・1.7倍）。「若いうちに速く学ぶと育ちが良い」は向きだけ（8/10）で言えない。</div></div>
+        </div>
+        <div class="lane">
+          <div class="node"><div class="v">STEP5・5b</div><div class="t">古い技能を守る</div><div class="d">固める（EWC）は守れない。復習は守るが新しいことを覚えない。世界ごとの合図を足しても両立しない。</div><div class="chips"><span class="chip c-lose">両立せず</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow">↓　本人「今のニューラルネットには限界がある。新しいアーキテクチャを作る」</div>
+
+    <div class="phase">
+      <div class="phase-h"><b>第3部　新しい頭（限界の試験・書き足す脳）</b><span>4つの限界を先に数字にして、合格線を書いてから作る。10/11 夜〜いま</span></div>
+      <div class="lanes3">
+        <div class="lane">
+          <div class="node"><div class="v">限界の試験</div><div class="t">今の頭（GRU 64）の4つの限界を測る</div><div class="d">① 忘れる 0.168　② 生きながら学べない +3.6　③ 覚えるのに163回　④ 結合 26,568本</div></div>
+          <div class="node"><div class="v">v0</div><div class="t">上書きせず書き足す記憶</div><div class="d">0/4。小さくまとめると結局平均して上書きと同じになり、巨大な型が独占した。</div><div class="chips"><span class="chip c-lose">0/4</span></div></div>
+          <div class="node"><div class="v">v1</div><div class="t">上限を上げ・食い違う記憶を混ぜにくく・数の重みを対数に</div><div class="d">③を越えた（43.5回）。でも前より忘れる（0.055）。v1 も縮めるとき記憶を平均していた（Codex の点検）。</div><div class="chips"><span class="chip c-win">③ 越えた</span><span class="chip c-note">1/4</span></div></div>
+        </div>
+        <div class="lane">
+          <div class="node"><div class="v">1つずつ外す</div><div class="t">v1 の3つの変更のどれが効いたか</div><div class="d">③は「数の重み log」1つで出る。しかも log だけの頭は古い技能が半分以上残る（0.554・別の10人で 0.574）。新しい課題は 365 に届かない。</div><div class="chips"><span class="chip c-win">③ 越えた</span><span class="chip c-note">①に一番近い</span></div></div>
+          <div class="node"><div class="v">人間らしさの試験</div><div class="t">思い出しの速さ・時間をおいた回復</div><div class="d">節約も回復も、線の近くで揺れて、2つの10人組で再現しない。</div></div>
+        </div>
+        <div class="lane">
+          <div class="node"><div class="v">v2〜v2d・切り分け</div><div class="t">場面を推し量る（4通り）</div><div class="d">手応えの外れ・体の変化の外れ・ありえなさの合計・一番ありえない出来事＋保留。全部、本計測の前の確かめで不合格。必ずさわる行動にすると区別の傾向（288回目→6回目）。</div><div class="chips"><span class="chip c-lose">確かめで停止×4</span></div></div>
+          <div class="node running"><div class="v">好奇心</div><div class="t">自分から確かめにいく</div><div class="d">v0：確かめは線で不合格・3人中1人だけ使い分け。v1 の前の診断（10/13）：使い分け 0/6。満腹の穴（体の値が1.0で頭打ち）を「口に入ったもの」で直すと、同じ頭でも強制なら区別できた（2/3）。自由ではまだ区別できない。仮置き（食い違いを仮に置く）は元の世界で場面を作りすぎた。親の時間（元の世界の一生の最初の100歩だけ親のそばで）を足すと、自分で動く頭も区別できた（5/6）＝足りなかったのは元の世界で「当たり前」を知る経験。</div><div class="chips"><span class="chip c-run">いまここ</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="tag">KIT</span>共通の作り</h2>
+  <div class="kit">
+    <div><b>耳の頭（第1部）</b><p>「次の30ミリ秒の音」を予想する小さな網（GRU）。ごほうびは無い。版17から温かさの感覚も入る。</p></div>
+    <div><b>声</b><p>ママ役は jvs091（日本語の女性1人）。知らない人は JVS コーパスの残り。英語は LibriSpeech。あなたの声は使っていない（本人の決定）。</p></div>
+    <div><b>箱の世界（第2・3部）</b><p>格子の世界に資源と親。行動は8つ（待つ・上下左右・資源へ・親へ・さわる）。元の世界は資源で、新しい課題は「親がご飯をくれる世界」。見た目は同じ。</p></div>
+    <div><b>人数</b><p>耳は各組5人、箱は学び手5〜10人。調整に使うのは本計測に使わない学び手299だけ。</p></div>
+    <div><b>作法</b><p>判定基準を走らせる前に書いてコミットする。短い試し走りで発火を確かめる。試し走りの数字は判定に使わない。負けも同じ形で残す。Codex が点検して、言い過ぎを後から訂正している。</p></div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="tag">LOG</span>記録（第1部・耳）</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>版</th><th>問い</th><th>判定</th><th>一番大事な数字</th></tr></thead>
+    <tbody>
+      <tr><td class="v">版0</td><td>親が話しかけると、場面に合った言葉を早く覚えるか</td><td><span class="chip c-lose">負け</span></td><td>差0ポイント。「ぱぱ」はボタンになった</td></tr>
+      <tr><td class="v">版1・1b</td><td>こもった音を先に聞くと覚えが速いか／ママの声が分かるか</td><td><span class="chip c-lose">① 0/5</span><span class="chip c-win">② 5/5</span></td><td>音素の正答率：全部 0.685・高い音 0.679・低い音 0.651・なし 0.648</td></tr>
+      <tr><td class="v">版2</td><td>遺伝子（1/18.6）は役に立つか・丸ごとに勝つか</td><td><span class="chip c-win">① 5/5</span><span class="chip c-lose">② 0/5</span></td><td>差の86%を18.6分の1の数で運んだ</td></tr>
+      <tr><td class="v">版3</td><td>英語や遠い予想なら縮めた遺伝子が有利か</td><td><span class="chip c-lose">0/5・0/5</span></td><td>運んだ割合 86 → 77 → 48%</td></tr>
+      <tr><td class="v">版4</td><td>遺伝子を「網」にすると丸ごとに届くか</td><td><span class="chip c-lose">1/5・0/5</span></td><td>網 72% 対 低ランク −28%（遠い世界）</td></tr>
+      <tr><td class="v">版5・7</td><td>ママの声はいつまで残るか</td><td><span class="chip c-hole">版5 基準の穴</span><span class="chip c-note">版7 消えた</span></td><td>こもった声は60分、そのままの声は240分で消えた</td></tr>
+      <tr><td class="v">版6</td><td>遺伝子を大きく・25世代</td><td><span class="chip c-lose">主 0/5</span><span class="chip c-win">大きく 5/5</span><span class="chip c-win">世代 4/5</span></td><td>磨いた小さい網 78% ＞ 一から写した大きい網 65%（判定外）</td></tr>
+      <tr><td class="v">版8</td><td>本物に近いお腹の音</td><td><span class="chip c-win">5/5</span><span class="chip c-win">60分 残る</span></td><td>全部 0.687 ＞ 本物に近い 0.672 ＞ 低い音 0.653 ＞ なし 0.649</td></tr>
+      <tr><td class="v">版9</td><td>削り方か、体の音か</td><td><span class="chip c-win">削り方</span><span class="chip c-lose">体の音</span></td><td>効き目 +0.017 対 +0.002</td></tr>
+      <tr><td class="v">版10</td><td>磨かれた小さい遺伝子は大きい遺伝子より強いか（別家系）</td><td><span class="chip c-win">勝ち 5/5</span></td><td>遠い世界 95% 対 64%。2家系で丸ごとにも勝った</td></tr>
+      <tr><td class="v">版11</td><td>正解つきで学べば低い音が勝つか</td><td><span class="chip c-lose">A&gt;B 0/5</span></td><td>学び方は逆転の原因ではなかった</td></tr>
+      <tr><td class="v">版12</td><td>生まれる前に音に体で反応するか</td><td><span class="chip c-lose">慣れ 0/5</span><span class="chip c-win">戻り 5/5</span><span class="chip c-win">ママ 5/5</span></td><td>知らない人の声のほうに驚く：+0.066（5人とも）</td></tr>
+      <tr><td class="v">版13</td><td>慣れのやり直し（学び方の道具を続ける）</td><td><span class="chip c-win">勝ち 5/5・5/5</span></td><td>版12の負けは道具を一から始めたせい。慣れ約4%・戻り約37%</td></tr>
+      <tr><td class="v">版14</td><td>抑揚で測れば低い音が勝つか</td><td><span class="chip c-lose">A&gt;B 1/5</span></td><td>差は0.01前後。物差しが鈍い（でたらめでも0.59）。声の高さの道具が約7%高かった（訂正済み）</td></tr>
+      <tr><td class="v">版15</td><td>耳が開く時期は効くか</td><td><span class="chip c-note">判定できない</span></td><td>良 2/5・悪 3/5。差 0.0004（「効かない」は言い過ぎと訂正）</td></tr>
+      <tr><td class="v">版16</td><td>自分の声を出すと、聞いた言葉らしい喃語になるか</td><td><span class="chip c-lose">0/5</span></td><td>日本語の耳は両方の言葉に同じだけ近づいた。言葉と録音の違いが重なっている</td></tr>
+      <tr><td class="v">版17</td><td>ママの声と温かさを結びつけるか</td><td><span class="chip c-win">結びつく 5/5</span><span class="chip c-win">区別 5/5</span><span class="chip c-note">消える 5/5</span></td><td>知らない人の声はママの0.89倍。全員2.4分で半分以下に</td></tr>
+      <tr><td class="v">版18</td><td>育つほど弱まるのは、今の温かさに頼るからか</td><td><span class="chip c-win">当たり 5/5</span></td><td>温かさを感じない頭は300分で +0.864（感じる頭 +0.072）。隠蔽と同じ形</td></tr>
+      <tr><td class="v">版19</td><td>すぐ消えるのは歩幅が大きいからか</td><td><span class="chip c-note">半分だけ 4/5</span></td><td>歩幅を小さくすると、消えるのも学ぶのも全部遅くなるだけ</td></tr>
+      <tr><td class="v">版20</td><td>隠蔽なしでも速く消えるか</td><td><span class="chip c-note">速く消える 5/5</span></td><td>結びつきは12倍大きいのに、同じ2.4分で消える</td></tr>
+      <tr><td class="v">総当たり1</td><td>頭の作り27通りで、香港大学の向きが出る作りはあるか</td><td><span class="chip c-lose">27通りとも負</span></td><td>一番良くても −0.004。記憶点は割り算の穴（分母がほぼ0）。確かめる段は本人に聞くことになっている</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2><span class="tag">LOG</span>記録（第2・3部・成長できる箱と新しい頭）</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>段</th><th>問い</th><th>判定</th><th>一番大事な数字</th></tr></thead>
+    <tbody>
+      <tr><td class="v">STEP1</td><td>世界と体を作り、記録が再現するか</td><td><span class="chip c-win">済</span></td><td>でたらめ 232.4・待つだけ 250.0・人が書いた決まり 461.5 歩</td></tr>
+      <tr><td class="v">STEP2</td><td>自分で行動を選び、経験で変わるか</td><td><span class="chip c-win">5/5</span></td><td>468.5 ± 16.4 歩。体の感覚を消すと −46.9</td></tr>
+      <tr><td class="v">STEP3</td><td>時間と経験で成熟すると、新しいことの覚えは変わるか</td><td><span class="chip c-note">遅くなった</span></td><td>覚えるまでの回数：時間で2.2倍・経験で1.7倍。作りから決まる予想で発見ではない</td></tr>
+      <tr><td class="v">STEP3b</td><td>若いうちに速く学ぶと育ちが良いか</td><td><span class="chip c-note">言えない 8/10</span></td><td>+44.6 ± 27.5（線は 2×標準誤差＝55）</td></tr>
+      <tr><td class="v">STEP5</td><td>古い技能を守れるか</td><td><span class="chip c-lose">固める 6/10</span><span class="chip c-win">復習 10/10</span></td><td>復習は古い技能の98%を残したが、新しい課題は 261 歩（覚えない）</td></tr>
+      <tr><td class="v">STEP5b</td><td>世界ごとの合図があれば両立するか</td><td><span class="chip c-lose">両立せず</span></td><td>合図は新しい課題を +29.2 歩助けただけ（365 まであと約90）</td></tr>
+      <tr><td class="v">書き足す v0</td><td>4つの限界を越えるか</td><td><span class="chip c-lose">0/4</span></td><td>縮めると古い記憶と新しい記憶を混ぜる。3万回分の型が独占</td></tr>
+      <tr><td class="v">書き足す v1</td><td>同じ</td><td><span class="chip c-win">③</span><span class="chip c-note">1/4</span></td><td>覚え 43.5 回（今の頭 162.8）。残った割合 0.055（今の頭 0.168）。試験の中の reset の副作用を直して走らせ直した数字（判定は不変）</td></tr>
+      <tr><td class="v">logだけ</td><td>v1 の3つの変更のどれが効いたか</td><td><span class="chip c-win">③</span><span class="chip c-note">1/4</span></td><td>覚え 39.9 回。残った割合 0.554・新しい課題 331.8。別の10人（236〜245）でも 37.6 回・0.574・326.6</td></tr>
+      <tr><td class="v">人間らしさ</td><td>思い出しが速いか・休むと戻るか</td><td><span class="chip c-lose">両方とも越えない</span></td><td>v1：節約 −4.9・回復 +10.4 ± 5.6（8/10、線 11.2 に届かず）。logだけ：226〜235 で節約あり・236〜245 で回復あり、どちらも片方の組だけ</td></tr>
+      <tr><td class="v">書き足す v2〜v2d</td><td>場面を推し量れば①を越えるか</td><td><span class="chip c-lose">確かめで停止×4</span></td><td>作りすぎ／作らなさすぎ。新しい世界でも違いが出る出来事にほとんど出会わない</td></tr>
+      <tr><td class="v">場面の切り分け</td><td>必ずさわる行動なら推し量れるか</td><td><span class="chip c-note">傾向だけ</span></td><td>新しい場面 288回目→6回目。元の世界の写しは 8/10 で元の場面、新しい世界の写しは 0/10（学び手1人・線では不合格）</td></tr>
+      <tr><td class="v">好奇心 v0</td><td>自分から確かめにいけば推し量れるか</td><td><span class="chip c-lose">確かめで停止</span></td><td>学び手299 は元＝場面1・新＝場面0 で完全に使い分け。297・298 では再現せず</td></tr>
+      <tr><td class="v">好奇心 v1 の診断</td><td>行動→観測→更新→使い分けのどこで止まるか（自由／強制×3人）</td><td><span class="chip c-lose">③④で止まる</span></td><td>親に20〜117回／一生さわり、見えた結果も46〜656回。それでも新しい場面は6本中1本・使い分けは0本。見えた結果は元の世界の場面に書き足されていた。さわった回の9割前後は満腹で結果が見えない</td></tr>
+      <tr><td class="v">口・仮置き v0</td><td>満腹の穴を直せば区別できるか／食い違いを仮に置けば区別できるか</td><td><span class="chip c-win">口：強制 2/3</span><span class="chip c-lose">仮置き 0/3</span></td><td>結果を「口に入ったもの」で見ると、基本の頭でも強制なら新しい世界の1回目で新しい場面を作り、写しは10/10で使い分けた（診断の結論を訂正）。自由では0/3。仮置きは元の世界の資源の良い・悪いを別の場面にしてしまい、作りすぎた</td></tr>
+      <tr><td class="v">親の時間</td><td>元の世界で親にさわる経験を足せば、自分で動く頭も区別できるか</td><td><span class="chip c-win">5/6</span></td><td>元の世界の一生の最初の100歩だけ親のそばで過ごすと、6人とも新しい世界の1回目で新しい場面、5人が使い分け（自由 1/6）。新しい世界に入ってすぐの驚きが 2.8〜3.4（自由 0.1〜1.7）。元の世界で「当たり前」を知っていると、変化にすぐ気づく、という説明と合う。<b>Codex の点検で条件つき：</b>試験の一生ごとに同じ状態から始めると、元の世界で元の場面に戻るのは 0〜3/10（使い分け 5/6 → 0/6）。1回の一生では戻れず、何回かかけて戻る。原因も1つには決められない</td></tr>
+      <tr><td class="v">好奇心 v1</td><td>まだ確かめていない所ほどさわりたくなる好奇心で、親の時間なしに区別できるか</td><td><span class="chip c-lose">確かめで停止</span></td><td>生まれてから力尽きるまで、その場でさわり続けた（200回中192回がちょうど184歩）。「似た感じ」に自分の体・年齢・最近の行動が入っていて、毎歩が新しく見え、好奇心が減らなかった（意味のない新しさに引き寄せられる Noisy-TV の形）。強さを変えても同じ。本計測はしていない。<b>訂正（Codex）：</b>「毎歩が新しく見えた」は誤り。上乗せは2回目の一生で減っていた。原因は v1b と同じ（最初の一生で「さわる」の見込みが飛び抜けて高くなり残る）</td></tr>
+      <tr><td class="v">好奇心 v1b</td><td>似た感じを、見えるものだけで数えれば直るか</td><td><span class="chip c-lose">確かめで停止</span></td><td>直らなかった。2回目の一生から全部の歩でさわり続けた（20/20）。生まれたばかりの頭が、何もない所でさわるだけで上乗せをもらって「さわるのが一番」と思い込み、ほかの行動を試さなくなる。本計測はしていない</td></tr>
+      <tr><td class="v">好奇心 v1c</td><td>さわれる物があるときだけ上乗せし、1回ずつ数えれば直るか</td><td><span class="chip c-lose">確かめで停止</span></td><td>軽くはなった（一生の長さ 184歩 → 337歩・元の世界で親に約18回／一生）。でも何もない所でさわる歩が37%（好奇心なしは11%）。見込みの記憶が、遠い所にも同じ値で効く作りのためと見ている。本計測はしていない</td></tr>
+      <tr><td class="v">使い分けの試験 v2</td><td>測り方を作り直すと、1回の一生のうちに世界を見分けられるか</td><td><span class="chip c-lose">親の時間 0/6</span><span class="chip c-win">強制 4/6</span></td><td>育ちに使っていない世界で、まちがった場面から、一生ごとに同じ状態から始める。新しい学び手6人。親の時間で育った頭は、新しい場面は作れるが、自分で動く試験では見分けない（前の形でも 5/6 → 3/6）。見分けたのは、試験のあいだも必ずさわる強制だけ。見分けたいその時に確かめにいく行動が要る</td></tr>
+      <tr><td class="v">試験の行動</td><td>試験の時に必ずさわらせれば、親の時間の頭も見分けるか</td><td><span class="chip c-lose">0/6</span></td><td>見分けない（予想は外れ）。強制で育った頭を試験だけ自由にしても 0/6。見分けたのは、育つときも試すときも同じ動き方のときだけ（4/6）。覚えたことが、その時の自分の動き方と一緒に覚えられていて、動き方が変わると呼び出されにくいと見ている</td></tr>
+      <tr><td class="v">好奇心 v1d</td><td>見込みを、近い記憶が無い所では0に寄せれば、空振りが減るか</td><td><span class="chip c-lose">確かめで停止</span></td><td>好奇心を入れる前の確かめで止まった。見込みの直しだけで、一生が410歩 → 288歩に縮んだ。遠い所にも見込みが効く作りは、空振りの原因でもあり、初めての所で動ける理由でもあった</td></tr>
+    </tbody>
+  </table></div>
+  <p class="muted" style="font-size:13px">限界の試験の合格線（新しい頭）：① 残った割合 0.5 以上かつ新しい課題 365 歩以上　② 学び手ごとに今の頭より上 8/10　③ 覚えの回数 81.4 以下　④ 結合 6,642 本以下で育ちを落とさない</p>
+</section>
+
+<section>
+  <h2><span class="tag">FIG</span>形で見る</h2>
+  <div class="charts">
+    <figure>
+      <div class="ttl">ママの声と温かさの結びつき（版18）</div>
+      <svg id="ch-bond" viewBox="0 0 480 270" role="img" aria-label="お腹の時期ごとの結びつきの強さ"></svg>
+      <div class="legend"><span><i style="background:var(--accent)"></i>今の温かさを感じない頭</span><span><i style="background:var(--hole)"></i>感じる頭</span></div>
+      <figcaption>5人平均。縦軸は温かさの目盛り（0〜1）。感じる頭は「今の温かさ」に頼るようになり、声の結びつきが隠れる。結びつきが消えたわけではなかった。</figcaption>
+    </figure>
+    <figure>
+      <div class="ttl">遺伝子が運んだ割合（版10・別家系での確かめ）</div>
+      <svg id="ch-gene" viewBox="0 0 480 270" role="img" aria-label="遺伝子の種類別の運んだ割合"></svg>
+      <div class="legend"><span><i style="background:var(--accent)"></i>家系で磨いた網（7.5千個）</span><span><i style="background:var(--run)"></i>一から写した網（8.2万個）</span><span><i style="background:var(--sub)"></i>一から写した網（7.5千個）</span></div>
+      <figcaption>100%＝丸ごとと同じ。0%＝遺伝子なしと同じ。世界が遠くなっても、磨いた小さい網だけは落ちない。</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section>
+  <h2><span class="tag">FOUND</span>分かったこと</h2>
+  <div class="finds">
+    <div class="find"><span class="n">1</span><div class="h">お腹の中で聞いた声は覚えて生まれ、生まれる前からママと知らない人を区別する。</div><div class="b">ママの声を予想しやすいまま生まれた（版1・1b・8 で 5/5）。人間の胎児の実験と同じ形で、知らない人の声のほうに大きく反応した（版12）。同じ文への慣れも出た（版13）。ただし覚えは数時間で消える。</div></div>
+    <div class="find"><span class="n">2</span><div class="h">香港大学の「こもった音が効く」は、どう測っても再現しない。</div><div class="b">物差し・学び方・抑揚・頭の作り27通りの4方向から確かめ、全部負け（版1b・11・14・総当たり1）。効くのは本物に近い段々の削り方で（版8・9）、それでも、そのままの声には届かない。</div></div>
+    <div class="find"><span class="n">3</span><div class="h">教えなくても、声と温かさは結びつく。でも人間のようには消えない。</div><div class="b">一緒に起きることを結びつけ、知らない人には少し弱く広げた（版17）。もっと確実な手がかりがあると隠れる（版18・隠蔽と同じ形）。でも「温かくならない」を数歩聞くだけで消える（版20）。人間の消去は、元の結びつきを残したまま上から抑える。</div></div>
+    <div class="find"><span class="n">4</span><div class="h">遺伝子は「大きさ」より「世代をまたいで磨かれたこと」が効く。</div><div class="b">25世代磨いた小さい網が、11倍の網に一から写したものより良かった。版6で見つけ、別の家系で判定に入れて再現した（版10 5/5）。遠い世界では2家系で丸ごとコピーにも勝った。</div></div>
+    <div class="find"><span class="n">5</span><div class="h">今の頭は、守ることと新しく覚えることを両立できない。</div><div class="b">固める（EWC）は守れたとは言えず、復習は守るが覚えない（STEP5）。合図を足しても両立しない（STEP5b）。新しい頭は覚えるのが約4倍速くなり（v1）、その原因は「記憶の数の重みに頭打ちをつける」1つだった。その頭は古い技能の半分以上を残すが、新しい課題を覚えきらない。</div></div>
+    <div class="find"><span class="n">6</span><div class="h">「世界が変わった」に気づくのは、思ったより難しい。</div><div class="b">手応えの予想の外れでは気づけなかった（古い予想はむしろ当たっていた）。体の変化の外れの大きさでは、もともとの揺れを世界の変化と取り違えた。ありえなさで比べても、そもそも違いが出る出来事にほとんど出会わない。必ずさわる行動にすると区別の傾向が出た。<b>気づくには、自分から確かめにいく行動が要る</b>、という見当まで来ている。</div></div>
+    <div class="find"><span class="n">7</span><div class="h">見当を外し、物差しの穴を見つけ、言い過ぎを訂正した。その記録が全部残っている。</div><div class="b">外れた見当：体の音（版9）、学び方（版11）、抑揚（版14）、v0の予想、人間らしさの節約。物差しの穴：版0・版1・版5・総当たり1の記憶点。訂正：版13・14・15・STEP5・5b・v0・v1・人間らしさ（Codex の点検）、STEP3。Codex が試験の中の1行の副作用（reset が書き足す脳の記憶だけ縮める）を見つけ、直して走らせ直した。本計測の前の確かめで止めたもの：場面を4回・好奇心を2回。</div></div>
+  </div>
+</section>
+
+<section class="limits">
+  <h2><span class="tag">LIMIT</span>まだ届いていないところ</h2>
+  <ul>
+    <li><b>2つの赤ちゃんがつながっていない。</b>耳の頭（声と温かさを結びつけた）と、箱の頭（行動して生きる）は別のもの。「声を聞いて、親のほうへ動く」はまだ無い。</li>
+    <li><b>言葉はまだ無い。</b>喃語は「人の声らしく」まで（版16）。本人の問いの「イコール」は、声と温かさの結びつき（版17）が今いちばん近いが、すぐ消える。</li>
+    <li>各組5人・学び手10人。小さい差（+0.017 など）は、向きはそろっていても量としては小さい。</li>
+    <li>香港大学の本文は未読。研究メモの数字は要旨まで。版1b 以降、C（お腹なし）だけ生後の乱数の並びが違う（影響は未測定）。</li>
+    <li>新しい頭は、4つの限界のうち③しか越えていない。①に一番近い「logだけ」も、新しい課題を 365 に届かせられない。</li>
+    <li>版0の後に書いた <code>世界.py</code>・<code>自走親.py</code> は一度も走らせていない（コミットもしていない）。</li>
+  </ul>
+</section>
+
+<section>
+  <h2><span class="tag">NEXT</span>これからの展望</h2>
+  <div class="cols">
+    <div class="card">
+      <div class="lab">すぐ（10/13 本人が選んだ：好奇心 v1 → まず診断）</div>
+      <ul>
+        <li><b>好奇心 v1 の診断（済）と口・仮置き（済）：</b>満腹の穴を直すと、強制では区別できた（2/3）。自由ではまだ区別できない。見当は「元の世界で親にさわる回数が少なく（1回の一生で約1回）、何も起きないことをよく知らないので、新しい世界のご飯が驚きにならない」。親の時間で確かめた＝見当どおり（5/6）。好奇心 v1（回数で決まる好奇心）は確かめで止まった：自分の体の変化を新しさと取り違えて、その場でさわり続けた。見えるものだけで数える v1b も同じ止まり方（何もない所でさわることに上乗せしていた）。v1c（物のとなりだけ上乗せ）も確かめで止まった。測り方を作り直すと（試験 v2）、親の時間でも1回の一生では見分けられず（0/6）、見分けたのは試験中も必ずさわる強制だけ（4/6）。ただし試験の時だけ必ずさわらせても見分けず（0/6）、育つときと試すときの動き方がそろったときだけ見分ける。好奇心は v1〜v1d の4つとも確かめで止まった。共通の根は、世界のこと（何にさわると何が起きるか）と自分の状態（体・年齢・動き方）が、1つの「感じ」にまとめて覚えられていること、と見ている。</li>
+        <li>候補B：logだけ の頭で、新しい課題を 365 に届かせる。</li>
+        <li>候補C：教材の19章（新しいアーキテクチャ）を自分の言葉で説明できるか確かめる。</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="lab">その先の候補（決めるのは本人）</div>
+      <ul>
+        <li><b>人間らしく消す：</b>速く書き換わる記憶とゆっくり書き換わる記憶を分ける（版20の提案）。場面の仕組みと同じ問題の別の入口。</li>
+        <li><b>2つの赤ちゃんをつなぐ：</b>耳の頭を箱の体に入れる。ママの声がしたら親が来る世界で、声に向かって動くようになるか。</li>
+        <li><b>遺伝子と育ち：</b>磨かれた遺伝子で生まれた子を、箱で育てる。生まれつきと育ちの取り分を分けて測る。</li>
+        <li>喃語のやり直し：同じ録音条件の2言語で（版16の負けの見当）。</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="lab">お前らの実験として</div>
+      <ul>
+        <li>今のAIは「丸ごとコピー」。版10では、世代をまたいで磨いた小さい網が、大きく一から写した網に勝った。</li>
+        <li>今のAIは新しいことを覚えると前を忘れる（STEP5）。人間は場面で記憶を切り替える。その「場面」の作り方で、いま3回つまずいている。ここが今のAIと人間の差の、具体的な一点になっている。気づくには、赤ちゃんのように自分から確かめにいく行動が要るのかもしれない。</li>
+      </ul>
+    </div>
+  </div>
+  <div class="where">
+    <span>耳の実験：<code>~/赤ちゃんAI</code>（判定基準_版N.md → 実験_版N.py → 結果_版N.md）。Codex の点検：<code>Codex_版14レビュー.md</code>・<code>共同開発_Codex.md</code></span>
+    <span>成長できる箱と新しい頭：<code>~/赤ちゃんAI/baby_ai</code>（README.md に「いまの場所」・限界の試験.md・判定基準_v1の切り分け.md・判定基準_好奇心v0.md・次の一手_候補.md）</span>
+  </div>
+</section>
+
+</div>
+
+<script>
+(function(){
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const NS = "http://www.w3.org/2000/svg";
+  function el(svg, tag, attrs, text){ const e=document.createElementNS(NS,tag); for(const k in attrs) e.setAttribute(k,attrs[k]); if(text!=null) e.textContent=text; svg.appendChild(e); return e; }
+  const mono="JetBrains Mono, monospace";
+
+  function bond(){
+    const svg=document.getElementById("ch-bond"); svg.innerHTML="";
+    const W=480,H=270,L=52,R=16,T=14,B=40;
+    const xs=["10","30","100","300"];
+    const no=[.525,.614,.823,.864], yes=[.342,.125,.081,.072];
+    const y0=0,y1=1;
+    const X=i=>L+30+i*(W-L-R-60)/(xs.length-1), Y=v=>T+(y1-v)/(y1-y0)*(H-T-B);
+    const ink=css("--sub"), grid=css("--line");
+    [0,.2,.4,.6,.8,1].forEach(v=>{ el(svg,"line",{x1:L,x2:W-R,y1:Y(v),y2:Y(v),stroke:grid,"stroke-width":v===0?1.5:1}); el(svg,"text",{x:L-8,y:Y(v)+4,"text-anchor":"end","font-size":11,fill:ink,"font-family":mono},v.toFixed(1)); });
+    xs.forEach((s,i)=>el(svg,"text",{x:X(i),y:H-B+18,"text-anchor":"middle","font-size":11,fill:ink,"font-family":mono},s));
+    el(svg,"text",{x:W-R,y:H-4,"text-anchor":"end","font-size":11,fill:ink},"お腹の時期（分）");
+    [[no,css("--accent")],[yes,css("--hole")]].forEach(([arr,c])=>{
+      el(svg,"polyline",{points:arr.map((v,i)=>X(i)+","+Y(v)).join(" "),fill:"none",stroke:c,"stroke-width":2.5,"stroke-linejoin":"round"});
+      arr.forEach((v,i)=>{ el(svg,"circle",{cx:X(i),cy:Y(v),r:3.5,fill:c}); if(i===3) el(svg,"text",{x:X(i)-8,y:Y(v)-9,"text-anchor":"end","font-size":11,fill:css("--ink"),"font-family":mono},"+"+v.toFixed(3)); });
+    });
+  }
+
+  function gene(){
+    const svg=document.getElementById("ch-gene"); svg.innerHTML="";
+    const W=480,H=270,L=52,R=16,T=18,B=40;
+    const worlds=["普通の声","英語","英語・遠い予想"];
+    const sets=[[[90,86,95],css("--accent")],[[80,73,64],css("--run")],[[65,53,23],css("--sub")]];
+    const y0=0,y1=100, Y=v=>T+(y1-v)/(y1-y0)*(H-T-B);
+    const ink=css("--sub"), grid=css("--line");
+    [0,25,50,75,100].forEach(v=>{ el(svg,"line",{x1:L,x2:W-R,y1:Y(v),y2:Y(v),stroke:grid,"stroke-width":v===0?1.5:1}); el(svg,"text",{x:L-8,y:Y(v)+4,"text-anchor":"end","font-size":11,fill:ink,"font-family":mono},v+"%"); });
+    const gw=(W-L-R)/3, bw=Math.min(34,gw*0.26);
+    worlds.forEach((w,i)=>{
+      const cx=L+gw*i+gw/2;
+      sets.map(([a,c],k)=>[a[i],c,k-1]).forEach(([v,c,s])=>{
+        const x=cx+s*(bw+4)-bw/2, y=Y(v), h=Y(0)-Y(v);
+        el(svg,"rect",{x:x,y:y,width:bw,height:Math.max(h,1),fill:c,rx:2});
+        el(svg,"text",{x:x+bw/2,y:y-5,"text-anchor":"middle","font-size":11,fill:css("--ink"),"font-family":mono},v+"%");
+      });
+      el(svg,"text",{x:cx,y:H-B+18,"text-anchor":"middle","font-size":11.5,fill:ink},w);
+    });
+  }
+  function draw(){ bond(); gene(); }
+  draw();
+  try{ matchMedia("(prefers-color-scheme: dark)").addEventListener("change",draw); new MutationObserver(draw).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]}); }catch(e){}
+})();
+</script>
+
+
+</body></html>

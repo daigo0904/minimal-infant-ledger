@@ -1,0 +1,39 @@
+<experiments>/S30_換算型その手だけ_20261118/走らせる.py:32: RuntimeWarning: Mean of empty slice
+  pa = np.mean([(A[lo:hi, i][相[lo:hi, i] == 0] == b).mean() for i in range(8)]); po = np.mean([(A[lo:hi, i][相[lo:hi, i] > 0] == b).mean() for i in range(8)])
+/opt/homebrew/lib/python3.14/site-packages/numpy/_core/_methods.py:142: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+<experiments>/S30_換算型その手だけ_20261118/走らせる.py:32: RuntimeWarning: Mean of empty slice
+  pa = np.mean([(A[lo:hi, i][相[lo:hi, i] == 0] == b).mean() for i in range(8)]); po = np.mean([(A[lo:hi, i][相[lo:hi, i] > 0] == b).mean() for i in range(8)])
+/opt/homebrew/lib/python3.14/site-packages/numpy/_core/_methods.py:142: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+<experiments>/S30_換算型その手だけ_20261118/走らせる.py:32: RuntimeWarning: Mean of empty slice
+  pa = np.mean([(A[lo:hi, i][相[lo:hi, i] == 0] == b).mean() for i in range(8)]); po = np.mean([(A[lo:hi, i][相[lo:hi, i] > 0] == b).mean() for i in range(8)])
+/opt/homebrew/lib/python3.14/site-packages/numpy/_core/_methods.py:142: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+<experiments>/S30_換算型その手だけ_20261118/走らせる.py:32: RuntimeWarning: Mean of empty slice
+  pa = np.mean([(A[lo:hi, i][相[lo:hi, i] == 0] == b).mean() for i in range(8)]); po = np.mean([(A[lo:hi, i][相[lo:hi, i] > 0] == b).mean() for i in range(8)])
+/opt/homebrew/lib/python3.14/site-packages/numpy/_core/_methods.py:142: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+<experiments>/S30_換算型その手だけ_20261118/走らせる.py:32: RuntimeWarning: Mean of empty slice
+  pa = np.mean([(A[lo:hi, i][相[lo:hi, i] == 0] == b).mean() for i in range(8)]); po = np.mean([(A[lo:hi, i][相[lo:hi, i] > 0] == b).mean() for i in range(8)])
+/opt/homebrew/lib/python3.14/site-packages/numpy/_core/_methods.py:142: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+<experiments>/S30_換算型その手だけ_20261118/走らせる.py:32: RuntimeWarning: Mean of empty slice
+  pa = np.mean([(A[lo:hi, i][相[lo:hi, i] == 0] == b).mean() for i in range(8)]); po = np.mean([(A[lo:hi, i][相[lo:hi, i] > 0] == b).mean() for i in range(8)])
+/opt/homebrew/lib/python3.14/site-packages/numpy/_core/_methods.py:142: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+<experiments>/S30_換算型その手だけ_20261118/走らせる.py:32: RuntimeWarning: Mean of empty slice
+  pa = np.mean([(A[lo:hi, i][相[lo:hi, i] == 0] == b).mean() for i in range(8)]); po = np.mean([(A[lo:hi, i][相[lo:hi, i] > 0] == b).mean() for i in range(8)])
+/opt/homebrew/lib/python3.14/site-packages/numpy/_core/_methods.py:142: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+<experiments>/S30_換算型その手だけ_20261118/走らせる.py:32: RuntimeWarning: Mean of empty slice
+  pa = np.mean([(A[lo:hi, i][相[lo:hi, i] == 0] == b).mean() for i in range(8)]); po = np.mean([(A[lo:hi, i][相[lo:hi, i] > 0] == b).mean() for i in range(8)])
+/opt/homebrew/lib/python3.14/site-packages/numpy/_core/_methods.py:142: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+なし: 戻り差 -0.012 見られ分け 0.413
+0.2 1.0 戻り差 -0.029 増えた数 3 見られ分け 0.418 0.9倍以上 10
+0.3 1.0 戻り差 -0.034 増えた数 1 見られ分け 0.412 0.9倍以上 10
+0.3 3.0 戻り差 -0.03 増えた数 3 見られ分け 0.403 0.9倍以上 9
+0.5 3.0 戻り差 -0.036 増えた数 0 見られ分け 0.417 0.9倍以上 10
+
+[exited with code 0]

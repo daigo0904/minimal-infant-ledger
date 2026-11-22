@@ -1,0 +1,8 @@
+{
+  "title": "What Does a Minimal Infant Need to Become Social? Code, preregistrations and results (S1-S246)",
+  "upload_type": "software",
+  "description": "Code, preregistrations, per-world results and the phenomenon ledger for experiments S1-S246 of a minimal infant agent (fixed random tanh feature layer, SARSA habit learner, RLS value estimates) in simulated social worlds.",
+  "creators": [{"name": "daigo0904"}],
+  "license": "MIT",
+  "keywords": ["artificial life", "developmental robotics", "preregistration", "social learning"]
+}
