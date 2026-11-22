@@ -8,7 +8,7 @@ Code, preregistrations and per-world results for experiments **S1–S246** repor
 | Path | Contents |
 |---|---|
 | `experiments/S<n>_<name>_<date>/` | One folder per experiment: `事前登録.md` (preregistration: hypotheses and pass thresholds written before the main run), scripts (`*.py`), results (`結果_本.json` = main run, 30 worlds; `結果_追試.json` = replication, 30 new worlds), logs |
-| `ledger/台帳.html` | The phenomenon ledger (which reported human phenomena appeared in the model, and which did not) |
+| `ledger/台帳.html` | The phenomenon ledger: which reported human phenomena appeared in the model and which did not (Japanese; it also lists later experiments S247–S251, whose folders are not in this repository) |
 | `ledger/見取り図.html` | Overview map of all experiments |
 | `preregistration_timestamps.tsv` | For each folder, the time (UTC) the preregistration and the main-run result were first committed in the author's working repository |
 
@@ -18,7 +18,7 @@ Folder and file names are in Japanese. Reported values are medians over 30 world
 
 Preregistration released before the run: doi:10.5281/zenodo.24432900 (archived 2026-11-22 03:36 UTC; run started 03:37 UTC). Result: 9 of 10 hypotheses passed in both runs; C5 (the bond's added effect is smaller in the unrelated world) failed in both runs, as predicted in the preregistration. Results are in `experiments/S252_*/結果_本.json` and `結果_追試.json`.
 
-`analysis/effects.py` computes per-world effect sizes with bootstrap intervals for the paper's headline comparisons.
+`analysis/tally.py` reproduces the paper's tally of preregistered verdicts (666 hypotheses in 217 experiments). `analysis/effects.py` computes per-world effect sizes with bootstrap intervals for the paper's headline comparisons.
 
 ## Reproducing
 
